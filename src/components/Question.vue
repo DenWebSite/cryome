@@ -75,7 +75,6 @@ const fetchQuestions = async () => {
 
         const data = await response.json()
         questions.value = data
-        console.log(questions)
 
         // Восстанавливаем сохранённые ответы
         const savedAnswers = localStorage.getItem('testAnswers')
@@ -112,7 +111,6 @@ const nextQuestion = () => {
     if (isAnswerSelected.value && currentIndex.value < questions.value.length - 1) {
         currentIndex.value++
     } else if (isAnswerSelected.value && currentIndex.value === questions.value.length - 1) {
-        console.log('Тест завершён! Ответы:', answers.value)
         submitResults()
     }
 }
@@ -152,10 +150,6 @@ const submitResults = async () => {
             }
         }
         
-        // Логируем результат для проверки
-        console.log('Отправляемые answers:', formattedAnswers)
-        console.log('telegram_id:', userStore.user?.id || userStore.userId?.value || 999999)
-        
         // Отправляем запрос
         const response = await fetch('http://127.0.0.1:8080/api/diagnostic/submit', {
             method: 'POST',
@@ -174,7 +168,6 @@ const submitResults = async () => {
         if (response.ok && result.success) {
             // Сохраняем результат в store
             userStore.setDiagnosticResult(result.data)
-            console.log('Результаты сохранены:', result.data)
             
             // Переходим на страницу результатов
             router.push('/results')

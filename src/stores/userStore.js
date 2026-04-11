@@ -10,6 +10,8 @@ export const useUserStore = defineStore('user', () => {
 
   const diagnosticResult = ref(null)
 
+  const course = ref(null);
+
   const initTelegramUser = () => {
     if (window.Telegram && window.Telegram.WebApp) {
       const tg = window.Telegram.WebApp
@@ -68,6 +70,7 @@ export const useUserStore = defineStore('user', () => {
     isTelegramReady,
 
     diagnosticResult,
+    course,
     setDiagnosticResult,
     getDiagnosticResult,
 

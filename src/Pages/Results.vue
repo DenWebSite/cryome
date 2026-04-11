@@ -76,7 +76,7 @@ onMounted(() => {
 })
 
 const createCourse = async () => {
-    console.log(userStore.diagnosticResult.session_id);
+    console.log("sessiod_id: !!!!!! ", userStore.diagnosticResult.session_id);
 
     const response = await fetch('http://127.0.0.1:8080/api/course/start', {
         method: 'POST',
@@ -90,7 +90,10 @@ const createCourse = async () => {
     })
 
     const result = await response.json()
-    console.log(result)
+    console.log("result старта курса !!!",result)
+
+    userStore.course = result.data.CourseID
+    console.log("useUserStore.course!!!!!!!!!!!", useUserStore.course)
 
     // if (response.ok && result.success) {
     //     console.log('курс:', result.data)

@@ -9,11 +9,10 @@ const userStore = useUserStore();
 const router = useRouter();
 
 const days = ref([]);
-// const isDayComplete = ref();
 const progressBar = ref(0);
 const selectedOptions = ref([])
 const isFormValid = ref(false);
-
+const selectedDay = ref();
 
 onMounted(() => {
     if (window.Telegram?.WebApp) {
@@ -23,9 +22,6 @@ onMounted(() => {
             router.back()
         })
     }
-
-    getCourseDays();
-    getCourseProgress();
 })
 
 onUnmounted(() => {
@@ -35,19 +31,17 @@ onUnmounted(() => {
 })
 
 const getCourseDays = async () => {
+    const telegram_id = userStore.user?.id || 999999;
+    const course_id = userStore.course;
+    
+    console.log('getCourseDays - course_id:', course_id);
+    
+    if (!course_id) {
+        console.log('Нет course_id, ждём загрузки...');
+        return null;
+    }
+
     try {
-        const telegram_id = userStore.user?.id || 999999;
-        const course_id = 1;
-
-        console.log('=== getCourseDays вызвана ===');
-        console.log('telegram_id:', telegram_id);
-        console.log('course_id:', course_id);
-
-        if (!course_id) {
-            console.error('Нет course_id!');
-            return null;
-        }
-
         const url = `http://127.0.0.1:8080/api/course/calendar?telegram_id=${telegram_id}&course_id=${course_id}`;
         console.log('URL:', url);
 
@@ -65,29 +59,35 @@ const getCourseDays = async () => {
         }
 
         const data = await response.json();
-
-        // Сохраняем в реактивную переменную
         days.value = data.data || data;
-        console.log(days.value);
+        console.log('Дни загружены:', days.value);
+        
+        // Автоматически выбираем первый день, если ещё не выбран
+        if (days.value.length > 0 && !selectedDay.value) {
+            selectedDay.value = days.value[0];
+        }
+        
         return days.value;
 
     } catch (error) {
-        console.error('❌ Ошибка:', error.message);
+        console.error('❌ Ошибка getCourseDays:', error.message);
         return null;
     }
 }
 
 const getCourseProgress = async () => {
+    const telegram_id = userStore.user?.id || 999999;
+    const course_id = userStore.course;
+    
+    console.log('getCourseProgress - course_id:', course_id);
+    
+    if (!course_id) {
+        return null;
+    }
+
     try {
-        const telegram_id = userStore.user?.id || 999999;
-        const course_id = 1;
-
-        if (!course_id) {
-            return null;
-        }
-
         const url = `http://127.0.0.1:8080/api/course/user/progress?telegram_id=${telegram_id}&course_id=${course_id}`;
-        console.log('URL:', url);
+        console.log('Progress URL:', url);
 
         const response = await fetch(url, {
             method: 'GET',
@@ -103,61 +103,65 @@ const getCourseProgress = async () => {
         }
 
         const data = await response.json();
-
-        // Сохраняем в реактивную переменную
         progressBar.value = data.data || data;
-        console.log(progressBar.value);
+        console.log('Прогресс:', progressBar.value);
         return progressBar.value;
 
     } catch (error) {
-        console.error('❌ Ошибка:', error.message);
+        console.error('❌ Ошибка getCourseProgress:', error.message);
         return null;
     }
 }
-
-const selectedDay = ref();
 
 const setSelectedDay = (day) => {
     selectedDay.value = day;
 }
 
-
 const setDayComplete = async (day) => {
     if (selectedOptions.value.length !== 3) {
-        console.log('Не все пункты отмечены');
         alert('Пожалуйста, отметьте все пункты');
         return;
     }
 
-    const course_id = 1;
-    try {
-        console.log('telegram_id:', userStore.user?.id || userStore.userId?.value || 999999)
+    const course_id = userStore.course;
+    
+    if (!course_id) {
+        alert('Курс не найден');
+        return;
+    }
 
+    try {
         const response = await fetch('http://127.0.0.1:8080/api/course/day/complete', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             },
             body: JSON.stringify({
-                telegram_id: userStore.user?.id || userStore.userId?.value || 999999,
+                telegram_id: userStore.user?.id || 999999,
                 day_number: day,
                 course_id: course_id,
             })
         })
 
         const result = await response.json()
-        console.log(result);
+        console.log('День завершён:', result);
 
-        await getCourseDays();
-        await getCourseProgress();
+        if (response.ok) {
+            // Перезагружаем данные
+            await getCourseDays();
+            await getCourseProgress();
 
-        const updatedDay = days.value.find(d => d.day_number === day);
-        if (updatedDay) {
-            selectedDay.value = updatedDay;
+            // Обновляем выбранный день
+            const updatedDay = days.value.find(d => d.day_number === day);
+            if (updatedDay) {
+                selectedDay.value = updatedDay;
+            }
+
+            // Очищаем чекбоксы
+            selectedOptions.value = [];
+        } else {
+            alert('Ошибка: ' + (result.message || 'Не удалось завершить день'));
         }
-
-        selectedOptions.value = [];
 
     } catch (err) {
         console.error('Ошибка при отправке:', err)
@@ -165,16 +169,24 @@ const setDayComplete = async (day) => {
     }
 }
 
+// Следим за загрузкой курса в store
+watch(() => userStore.course, async (newCourse) => {
+    if (newCourse) {
+        console.log('Курс загружен в store, ID:', newCourse);
+        await getCourseDays();
+        await getCourseProgress();
+    }
+}, { immediate: true })
 
+// Следим за чекбоксами
 watch(selectedOptions, (newValue) => {
     isFormValid.value = newValue.length === 3;
 }, { deep: true });
-
 </script>
 
 <template>
 
-    <div class="container">
+    <div class="container gray">
         <h1 class="title">
             Начинаем трансформацию кожи
             и бережный уход за ней
@@ -185,7 +197,8 @@ watch(selectedOptions, (newValue) => {
         </p>
 
         <div class="days">
-            <div v-for="day in days" class="day" @click="setSelectedDay(day)">
+            <div v-for="day in days" class="day" @click="setSelectedDay(day)"
+                :style="!day.completed ? { border: '1px solid #000' } : { border: '1px solid transparent' }">
                 <svg v-if="day.id === 1 || day.completed" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <g opacity="0.3">
@@ -301,16 +314,16 @@ watch(selectedOptions, (newValue) => {
 
 .day {
     background-color: #FFF;
-    border-radius: 1px solid #FFF;
+    padding: 4px;
     flex-shrink: 0;
-    width: 63px;
+    width: 64px;
     height: 77px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     border-radius: 50px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .progress__bar {
