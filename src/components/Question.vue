@@ -126,11 +126,11 @@ const prevQuestion = () => {
 const submitResults = async () => {
     try {
         const formattedAnswers = []
-        
+
         for (const [questionId, answerValue] of Object.entries(answers.value)) {
             const question = questions.value.find(q => q.id === parseInt(questionId))
             if (!question) continue
-            
+
             if (question.is_multiple && Array.isArray(answerValue)) {
                 answerValue.forEach(answerId => {
                     const answer = question.answers.find(a => a.id === answerId)
@@ -151,23 +151,26 @@ const submitResults = async () => {
                 }
             }
         }
-        
+
         const response = await fetch('http://127.0.0.1:8080/api/diagnostic/submit', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                // 'X-Telegram-Init-Data': window.Telegram.WebApp.initData,
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 telegram_id: userStore.user?.id || userStore.userId?.value || 1063029556,
                 answers: formattedAnswers
             })
         })
-        
+
         const result = await response.json()
-        
+
         if (response.ok && result.success) {
             // Сохраняем результат в store
             userStore.setDiagnosticResult(result.data)
             console.log('Результаты сохранены:', result.data)
-            
+
             // Переходим на страницу результатов
             router.push('/results')
         } else {
@@ -224,7 +227,7 @@ onMounted(() => {
     </div>
     <div class="navigation">
 
-        
+
         <Button @click="nextQuestion" :btnTitle="currentIndex === questions.length - 1 ? 'Завершить' : 'Далее'" />
 
         <Button @click="prevQuestion" btnTitle="Предыдущий вопрос" />

@@ -10,13 +10,10 @@ export const useUserStore = defineStore('user', () => {
 
   const diagnosticResult = ref(null)
 
-  // Действия
   const initTelegramUser = () => {
-    // Проверяем, что мы внутри Telegram
     if (window.Telegram && window.Telegram.WebApp) {
       const tg = window.Telegram.WebApp
 
-      // Получаем данные пользователя
       initDataUnsafe.value = tg.initDataUnsafe
 
       if (tg.initDataUnsafe.user) {
@@ -24,16 +21,11 @@ export const useUserStore = defineStore('user', () => {
         console.log('User data:', user.value)
       }
 
-      // Сообщаем Telegram, что приложение готово
       tg.ready()
-
-      // Разворачиваем на весь экран
       tg.expand()
 
       isTelegramReady.value = true
     } else {
-      console.log('Not running inside Telegram')
-      // Для разработки можно добавить тестовые данные
       if (import.meta.env.DEV) {
         user.value = {
           id: 123456789,
@@ -60,7 +52,6 @@ export const useUserStore = defineStore('user', () => {
 
   const setDiagnosticResult = (result) => {
     diagnosticResult.value = result
-    // Сохраняем в localStorage для持久化
     localStorage.setItem('diagnosticResult', JSON.stringify(result))
   }
 

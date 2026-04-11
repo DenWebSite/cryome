@@ -39,7 +39,7 @@
                         <Button class="white" btnTitle="Купить на Ozon" />
                     </a>
 
-                    <RouterLink to="/course">
+                    <RouterLink to="/course" @click="createCourse()">
                         <Button class="olive" btnTitle="Я уже купил → активировать уход" />
                     </RouterLink>
                 </div>
@@ -71,18 +71,32 @@ onMounted(() => {
 
     // Если нет результата, возвращаем на тест
     if (!result.value) {
-        router.push('/test')
+        router.push('/question')
     }
 })
 
-const restartTest = () => {
-    // Очищаем результаты
-    localStorage.removeItem('testAnswers')
-    localStorage.removeItem('diagnosticResult')
-    userStore.setDiagnosticResult(null)
+const createCourse = async () => {
+    console.log(userStore.diagnosticResult.session_id);
 
-    // Переходим на тест
-    router.push('/test')
+    const response = await fetch('http://127.0.0.1:8080/api/course/start', {
+        method: 'POST',
+        headers: {
+            // 'X-Telegram-Init-Data': window.Telegram.WebApp.initData,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            session_id: userStore.diagnosticResult.session_id
+        })
+    })
+
+    const result = await response.json()
+
+    // if (response.ok && result.success) {
+    //     console.log('курс:', result.data)
+
+    // } else {
+    //     console.error('Ошибка:', result)
+    // }
 }
 </script>
 
