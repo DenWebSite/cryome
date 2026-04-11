@@ -126,58 +126,66 @@ const prevQuestion = () => {
 const submitResults = async () => {
     try {
         const formattedAnswers = []
-
+        
+        // Проходим по всем ответам пользователя
         for (const [questionId, answerValue] of Object.entries(answers.value)) {
             const question = questions.value.find(q => q.id === parseInt(questionId))
             if (!question) continue
-
+            
+            // Для множественных ответов (чекбоксы)
             if (question.is_multiple && Array.isArray(answerValue)) {
                 answerValue.forEach(answerId => {
-                    const answer = question.answers.find(a => a.id === answerId)
-                    if (answer) {
+                    if (answerId) { // Проверяем, что answerId существует
                         formattedAnswers.push({
-                            questionID: answer.question_id,
-                            answerID: answerId
+                            questionID: parseInt(questionId), // Явно преобразуем в число
+                            answerID: parseInt(answerId)     // Явно преобразуем в число
                         })
                     }
                 })
-            } else if (!question.is_multiple && answerValue) {
-                const answer = question.answers.find(a => a.id === answerValue)
-                if (answer) {
-                    formattedAnswers.push({
-                        questionID: answer.question_id,
-                        answerID: answerValue
-                    })
-                }
+            } 
+            // Для одиночных ответов (радиокнопки)
+            else if (!question.is_multiple && answerValue) {
+                formattedAnswers.push({
+                    questionID: parseInt(questionId), // Явно преобразуем в число
+                    answerID: parseInt(answerValue)   // Явно преобразуем в число
+                })
             }
         }
-
+        
+        // Логируем результат для проверки
+        console.log('Отправляемые answers:', formattedAnswers)
+        console.log('telegram_id:', userStore.user?.id || userStore.userId?.value || 999999)
+        
+        // Отправляем запрос
         const response = await fetch('http://127.0.0.1:8080/api/diagnostic/submit', {
             method: 'POST',
             headers: {
-                // 'X-Telegram-Init-Data': window.Telegram.WebApp.initData,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                // 'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             },
             body: JSON.stringify({
-                telegram_id: userStore.user?.id || userStore.userId?.value || 1063029556,
+                telegram_id: userStore.user?.id || userStore.userId?.value || 999999,
                 answers: formattedAnswers
             })
         })
-
+        
         const result = await response.json()
-
+        
         if (response.ok && result.success) {
             // Сохраняем результат в store
             userStore.setDiagnosticResult(result.data)
             console.log('Результаты сохранены:', result.data)
-
+            
             // Переходим на страницу результатов
             router.push('/results')
         } else {
-            console.error('Ошибка:', result)
+            console.error('Ошибка сервера:', result)
+            // Показываем пользователю сообщение об ошибке
+            alert('Не удалось сохранить результаты. Попробуйте еще раз.')
         }
     } catch (err) {
-        console.error('Ошибка:', err)
+        console.error('Ошибка при отправке:', err)
+        alert('Ошибка соединения. Проверьте подключение к серверу.')
     }
 }
 

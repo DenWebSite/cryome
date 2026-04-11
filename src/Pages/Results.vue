@@ -90,6 +90,7 @@ const createCourse = async () => {
     })
 
     const result = await response.json()
+    console.log(result)
 
     // if (response.ok && result.success) {
     //     console.log('курс:', result.data)

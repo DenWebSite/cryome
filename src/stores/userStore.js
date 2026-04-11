@@ -28,7 +28,7 @@ export const useUserStore = defineStore('user', () => {
     } else {
       if (import.meta.env.DEV) {
         user.value = {
-          id: 123456789,
+          id: 999999,
           first_name: 'Тестовый',
           last_name: 'Пользователь',
           username: 'testuser',
