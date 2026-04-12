@@ -124,12 +124,12 @@ const prevQuestion = () => {
 const submitResults = async () => {
     try {
         const formattedAnswers = []
-        
+
         // Проходим по всем ответам пользователя
         for (const [questionId, answerValue] of Object.entries(answers.value)) {
             const question = questions.value.find(q => q.id === parseInt(questionId))
             if (!question) continue
-            
+
             // Для множественных ответов (чекбоксы)
             if (question.is_multiple && Array.isArray(answerValue)) {
                 answerValue.forEach(answerId => {
@@ -140,7 +140,7 @@ const submitResults = async () => {
                         })
                     }
                 })
-            } 
+            }
             // Для одиночных ответов (радиокнопки)
             else if (!question.is_multiple && answerValue) {
                 formattedAnswers.push({
@@ -149,7 +149,12 @@ const submitResults = async () => {
                 })
             }
         }
-        
+
+        console.log('Отправляемые данные:', {
+            telegram_id: 999999,
+            answers: formattedAnswers
+        })
+
         // Отправляем запрос
         const response = await fetch('http://127.0.0.1:8080/api/diagnostic/submit', {
             method: 'POST',
@@ -158,17 +163,19 @@ const submitResults = async () => {
                 // 'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             },
             body: JSON.stringify({
-                telegram_id: userStore.user?.id || userStore.userId?.value || 999999,
+                telegram_id: 999999,
+                // telegram_id: userStore.user?.id || userStore.userId?.value || 999999,
                 answers: formattedAnswers
             })
         })
-        
+
         const result = await response.json()
-        
+
+
         if (response.ok && result.success) {
             // Сохраняем результат в store
             userStore.setDiagnosticResult(result.data)
-            
+
             // Переходим на страницу результатов
             router.push('/results')
         } else {
@@ -179,6 +186,9 @@ const submitResults = async () => {
     } catch (err) {
         console.error('Ошибка при отправке:', err)
         alert('Ошибка соединения. Проверьте подключение к серверу.')
+        const errorData = await response.json()
+        console.error('Детали ошибки сервера:', errorData)
+        throw new Error(`Server error: ${response.status}`)
     }
 }
 
@@ -202,7 +212,7 @@ onMounted(() => {
 
         <!-- Вопросы -->
         <div v-else-if="questions.length > 0">
-            <h3 class="question-title">{{ currentIndex + 1 }}. {{ currentQuestion.text }}</h3>
+            <h3 class="question-title"><span>{{ currentIndex + 1 }}.</span> {{ currentQuestion.text }}</h3>
 
             <!-- Варианты ответов -->
             <div class="answers-list">
@@ -211,7 +221,8 @@ onMounted(() => {
                     v-if="!currentQuestion.is_multiple">
                     <input type="radio" :name="`question_${currentQuestion.id}`" :value="answer.id"
                         v-model="selectedAnswer" />
-                    <span>{{ answer.text }}</span>
+                    <span class="custom-radio"></span>
+                    <span class="answer-text">{{ answer.text }}</span>
                 </label>
 
                 <!-- Множественный выбор (checkbox) -->
@@ -219,23 +230,120 @@ onMounted(() => {
                     v-if="currentQuestion.is_multiple">
                     <input type="checkbox" :name="`question_${currentQuestion.id}`" :value="answer.id"
                         v-model="selectedAnswersMultiple" />
-                    <span>{{ answer.text }}</span>
+                    <span class="custom-checkbox"></span>
+                    <span class="answer-text">{{ answer.text }}</span>
                 </label>
             </div>
         </div>
 
-        <p class="question-footer">CryoMe — результат здесь и сейчас. каждый день.</p>
+        <p class="question-footer"><span>CryoMe</span> — результат здесь и сейчас. каждый день.</p>
     </div>
     <div class="navigation">
-
-
-        <Button @click="nextQuestion" :btnTitle="currentIndex === questions.length - 1 ? 'Завершить' : 'Далее'" />
+        <Button @click="nextQuestion"
+            :btnTitle="currentIndex === questions.length - 1 ? 'Подвести итоги' : 'Следующий вопрос'" />
 
         <Button @click="prevQuestion" btnTitle="Предыдущий вопрос" />
     </div>
 </template>
 
 <style scoped>
+.answers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.answer-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    position: relative;
+}
+
+.answer-item input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+/* ========== RADIO (кружки) ========== */
+.custom-radio {
+    display: flex;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    background-color: #fff;
+    transition: all 0.2s ease;
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Выбранное состояние radio */
+.answer-item input:checked+.custom-radio {
+    border-color: #000;
+    background-color: #fff;
+}
+
+/* Внутренняя точка для выбранного radio */
+.answer-item input:checked+.custom-radio::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #000;
+}
+
+/* Hover эффект для radio */
+.answer-item:hover .custom-radio {
+    border-color: #666;
+}
+
+/* ========== CHECKBOX (квадраты с галочкой) ========== */
+.custom-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid #ccc;
+    background-color: #fff;
+    transition: all 0.2s ease;
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Выбранное состояние checkbox */
+.answer-item input:checked+.custom-checkbox {
+    border-color: #000;
+    background-color: #000;
+}
+
+/* Галочка для выбранного checkbox */
+.answer-item input:checked+.custom-checkbox::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Hover эффект для checkbox */
+.answer-item:hover .custom-checkbox {
+    border-color: #666;
+}
+
+
+
 .question-container {
     border: 1px solid var(--color-black);
     background-color: var(--color-light-gray);
@@ -248,9 +356,14 @@ onMounted(() => {
 }
 
 .question-title {
+    font-family: var(--font-amazing);
     font-size: 28px;
-    font-weight: 500;
+    font-weight: 700;
     margin-bottom: 30px;
+
+    span {
+        font-family: var(--font-inter);
+    }
 }
 
 .answers-list {
@@ -267,6 +380,11 @@ onMounted(() => {
     text-align: center;
     max-width: 300px;
     margin: 0 auto;
+    line-height: 100%;
+
+    span {
+        font-family: var(--font-amazing);
+    }
 }
 
 .navigation {

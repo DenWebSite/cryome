@@ -13,8 +13,16 @@
                     <h2>{{ result.product?.name }}</h2>
                     <p>{{ result.product?.description }}</p>
                     <img src="/fluid.jpg" alt="">
-                    <p>Флюид CryoMe «Глубокое увлажнение» увлажняет, защищает кожу и подходит для ежедневного ухода.
-                        Можно использовать отдельно или с кремом, при липкости — разбавить водой.</p>
+                    <p>{{ result.product?.description_2 }}</p>
+                </div>
+
+                <div class="results__guide">
+                    <h2 class="results__guide-title">Как пользоваться флюидом?</h2>
+
+                    <div class="results__guide-item" v-for="(task, index) in tasksArray" :key="index">
+                        <p class="results__guide-number">0{{ index+1 }}</p>
+                        <p class="results__guide-descr">{{ task }}</p>
+                    </div>
                 </div>
 
                 <div class="effect">
@@ -22,9 +30,7 @@
                     <div class="effect__inner">
                         <h3 class="effect__title">Эффект через 21 день:</h3>
                         <ul class="effect__list">
-                            <li class="effect__list-item">- кожа спокойная и напитанная</li>
-                            <li class="effect__list-item">- исчезает стянутость</li>
-                            <li class="effect__list-item">- появляется мягкое сияние</li>
+                            <li class="effect__list-item" v-for="effect in effectArray">{{ effect }}</li>
                         </ul>
 
                         <p class="effect__text">CryoMe — <br>когда нужен эффект</p>
@@ -64,6 +70,8 @@ const userStore = useUserStore()
 const loading = ref(true)
 const result = ref(null)
 
+const apiUrl = import.meta.env.VITE_API_URL
+
 onMounted(() => {
     // Получаем результат из store
     result.value = userStore.getDiagnosticResult()
@@ -76,9 +84,7 @@ onMounted(() => {
 })
 
 const createCourse = async () => {
-    console.log("sessiod_id: !!!!!! ", userStore.diagnosticResult.session_id);
-
-    const response = await fetch('http://127.0.0.1:8080/api/course/start', {
+    const response = await fetch(`${apiUrl}/api/course/start`, {
         method: 'POST',
         headers: {
             // 'X-Telegram-Init-Data': window.Telegram.WebApp.initData,
@@ -90,18 +96,14 @@ const createCourse = async () => {
     })
 
     const result = await response.json()
-    console.log("result старта курса !!!",result)
-
+    console.log(result);
     userStore.course = result.data.CourseID
-    console.log("useUserStore.course!!!!!!!!!!!", useUserStore.course)
-
-    // if (response.ok && result.success) {
-    //     console.log('курс:', result.data)
-
-    // } else {
-    //     console.error('Ошибка:', result)
-    // }
 }
+
+const tasksArray = result.course_tasks.split('\r\n');
+const effectArray = result.course_effect.split('\r\n');
+console.log(tasksArray);
+console.log(effectArray);
 </script>
 
 <style lang="scss" scoped>
@@ -160,23 +162,66 @@ const createCourse = async () => {
 
 .title {
     font-size: 36px;
-    font-weight: 500;
+    font-weight: 700;
+    font-family: var(--font-amazing);
     margin-block: 0 6px;
+}
+
+.results {
+
+    &__guide {
+        margin-bottom: 30px;
+
+        &-title {
+            font-family: var(--font-amazing);
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 25px;
+            margin-bottom: 44px;
+            text-align: center;
+        }
+
+        &-item {
+            display: grid;
+            grid-template-columns: 30% 70%;
+            align-items: center;
+            justify-content: center;
+            justify-items: center;
+            gap: 14px;
+            line-height: 100%;
+            max-width: 340px;
+            padding-top: 20px;
+
+            &+& {
+                margin-top: 20px;
+                border-top: 1px solid rgba($color: #000000, $alpha: 0.1);
+            }
+        }
+
+        &-number {
+            font-family: var(--font-mokoko);
+            font-size: 64px;
+            font-weight: 500;
+            opacity: 8%;
+        }
+    }
 }
 
 .results__box {
     background-color: var(--color-olive);
     margin-top: 26px;
-    padding: 25px 40px;
+    padding: 25px 13px;
     border-radius: 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
     color: #fff;
 
     h2 {
+        font-family: var(--font-amazing);
         font-size: 24px;
-        font-weight: 500;
+        font-weight: 700;
     }
 
     p {

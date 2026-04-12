@@ -1,7 +1,11 @@
 <script setup>
 import Button from '@/components/Button.vue';
 import { RouterLink } from 'vue-router';
+import { useUserStore } from '.././stores/userStore'
 
+const userStore = useUserStore();
+
+const course_id = userStore.course;
 </script>
 
 <template>
@@ -13,9 +17,15 @@ import { RouterLink } from 'vue-router';
         <p class="hero__subtitle">Уход — это не про случайный выбор.</p>
         <p class="hero__subtitle">Это про точное попадание в состояние кожи сегодня.</p>
 
-        <RouterLink to="/secondpage">
-            <Button btnTitle="Начать диагностику"></Button>
-        </RouterLink>
+        <div class="buttons">
+            <RouterLink to="/course" v-show="course_id">
+                <Button btnTitle="К курсу"></Button>
+            </RouterLink>
+
+            <RouterLink to="/secondpage">
+                <Button btnTitle="Начать диагностику"></Button>
+            </RouterLink>
+        </div>
     </div>
 </template>
 
@@ -24,11 +34,13 @@ import { RouterLink } from 'vue-router';
     text-align: center;
     font-size: 20px;
     margin-bottom: 10px;
+    font-family: var(--font-amazing);
 }
 
 .hero {
 
     &__title {
+        font-family: var(--font-amazing), sans-serif;
         font-weight: 700;
         font-size: 32px;
         letter-spacing: -3%;
@@ -48,5 +60,11 @@ import { RouterLink } from 'vue-router';
             margin-bottom: 30px;
         }
     }
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 </style>

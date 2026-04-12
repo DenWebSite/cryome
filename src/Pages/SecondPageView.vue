@@ -6,9 +6,10 @@ import { RouterLink } from 'vue-router';
 
 <template>
     <div class="container">
-        <h1 class="hero__title">21 день, который меняет кожу</h1>
-        <p class="hero__subtitle">Мы не просто подбираем средство — мы сопровождаем тебя до результата. </p>
-        <p class="hero__subtitle">Каждый флюид — это система: увлажнение, восстановление или сияние.</p>
+        <h1 class="hero__title"><span>21</span> день, который меняет кожу</h1>
+        <p class="hero__subtitle">Мы не просто подбираем средство — мы сопровождаем тебя до <span>результата. </span>
+        </p>
+        <p class="hero__subtitle">Каждый флюид — <span>это система</span>: увлажнение, восстановление или сияние.</p>
 
         <img class="hero__image" src="/redhead-girl.jpg" alt="image" width="430" height="573">
 
@@ -25,12 +26,17 @@ import { RouterLink } from 'vue-router';
     }
 
     &__title {
-        font-weight: 700;
+        font-family: var(--font-amazing);
+        font-weight: 800;
         font-size: 36px;
         letter-spacing: -3%;
         align-items: center;
         margin-block: 0 14px;
         line-height: 100%;
+
+        span {
+            font-family: var(--font-inter);
+        }
     }
 
     &__subtitle {
@@ -49,6 +55,10 @@ import { RouterLink } from 'vue-router';
             left: -10px;
             top: 50%;
             transform: translateY(-50%);
+        }
+
+        span{
+            font-weight: 700;
         }
     }
 }

@@ -14,6 +14,8 @@ const selectedOptions = ref([])
 const isFormValid = ref(false);
 const selectedDay = ref();
 
+const apiUrl = import.meta.env.VITE_API_URL
+
 onMounted(() => {
     if (window.Telegram?.WebApp) {
         const tg = window.Telegram.WebApp
@@ -33,16 +35,13 @@ onUnmounted(() => {
 const getCourseDays = async () => {
     const telegram_id = userStore.user?.id || 999999;
     const course_id = userStore.course;
-    
-    console.log('getCourseDays - course_id:', course_id);
-    
+
     if (!course_id) {
-        console.log('Нет course_id, ждём загрузки...');
         return null;
     }
 
     try {
-        const url = `http://127.0.0.1:8080/api/course/calendar?telegram_id=${telegram_id}&course_id=${course_id}`;
+        const url = `${apiUrl}/api/course/calendar?telegram_id=${telegram_id}&course_id=${course_id}`;
         console.log('URL:', url);
 
         const response = await fetch(url, {
@@ -61,12 +60,12 @@ const getCourseDays = async () => {
         const data = await response.json();
         days.value = data.data || data;
         console.log('Дни загружены:', days.value);
-        
+
         // Автоматически выбираем первый день, если ещё не выбран
         if (days.value.length > 0 && !selectedDay.value) {
             selectedDay.value = days.value[0];
         }
-        
+
         return days.value;
 
     } catch (error) {
@@ -78,15 +77,15 @@ const getCourseDays = async () => {
 const getCourseProgress = async () => {
     const telegram_id = userStore.user?.id || 999999;
     const course_id = userStore.course;
-    
+
     console.log('getCourseProgress - course_id:', course_id);
-    
+
     if (!course_id) {
         return null;
     }
 
     try {
-        const url = `http://127.0.0.1:8080/api/course/user/progress?telegram_id=${telegram_id}&course_id=${course_id}`;
+        const url = `${apiUrl}/api/course/user/progress?telegram_id=${telegram_id}&course_id=${course_id}`;
         console.log('Progress URL:', url);
 
         const response = await fetch(url, {
@@ -124,14 +123,14 @@ const setDayComplete = async (day) => {
     }
 
     const course_id = userStore.course;
-    
+
     if (!course_id) {
         alert('Курс не найден');
         return;
     }
 
     try {
-        const response = await fetch('http://127.0.0.1:8080/api/course/day/complete', {
+        const response = await fetch(`${apiUrl}/api/course/day/complete`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -150,6 +149,7 @@ const setDayComplete = async (day) => {
             // Перезагружаем данные
             await getCourseDays();
             await getCourseProgress();
+            await checkIsCourseComplete();
 
             // Обновляем выбранный день
             const updatedDay = days.value.find(d => d.day_number === day);
@@ -166,6 +166,45 @@ const setDayComplete = async (day) => {
     } catch (err) {
         console.error('Ошибка при отправке:', err)
         alert('Ошибка соединения. Проверьте подключение к серверу.')
+    }
+}
+
+const checkIsCourseComplete = async () => {
+    const telegram_id = userStore.user?.id || 999999;
+    const course_id = userStore.course;
+
+    console.log('checkIsCourseComplete - course_id:', course_id);
+
+    if (!course_id) {
+        return null;
+    }
+
+    try {
+        const url = `${apiUrl}/api/course/complete?telegram_id=${telegram_id}&course_id=${course_id}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                "Content-type": 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Текст ошибки:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('Курс завершён?:', data);
+
+        const isComplete = data.data === true || data.is_complete === true || data === true;
+
+        return isComplete;
+
+    } catch (error) {
+        console.error('❌ Ошибка checkIsCourseComplete:', error.message);
+        return null;
     }
 }
 
@@ -191,6 +230,22 @@ watch(selectedOptions, (newValue) => {
             Начинаем трансформацию кожи
             и бережный уход за ней
         </h1>
+
+        <svg class="title-svg" width="29" height="29" viewBox="0 0 29 29" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1619_2)">
+                <path
+                    d="M11.7812 4.53125H17.2187M17.4495 6.00542C17.2983 5.73514 17.2188 5.43063 17.2187 5.12092V1.8125C17.2187 1.57215 17.1233 1.34164 16.9533 1.17168C16.7833 1.00173 16.5528 0.90625 16.3125 0.90625H12.6875C12.4471 0.90625 12.2166 1.00173 12.0467 1.17168C11.8767 1.34164 11.7812 1.57215 11.7812 1.8125V5.12092C11.7811 5.43063 11.7017 5.73514 11.5504 6.00542L9.60624 9.48179C8.65977 10.9845 8.15713 12.7241 8.15624 14.5V25.7774C8.15174 26.1819 8.28455 26.5761 8.53299 26.8954C8.78143 27.2147 9.13082 27.4404 9.52407 27.5355C12.7987 28.2798 16.2001 28.2798 19.4759 27.5355C19.8692 27.4404 20.2185 27.2147 20.467 26.8954C20.7154 26.5761 20.8482 26.1819 20.8437 25.7774V14.5C20.8437 12.7238 20.3411 10.9838 19.3937 9.48179L17.4495 6.00542Z"
+                    stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+            <defs>
+                <clipPath id="clip0_1619_2">
+                    <rect width="29" height="29" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+
+
         <p class="subtitle">
             21 день — это цикл обновления кожи.
             Следуй протоколу, чтобы увидеть результат.
@@ -221,11 +276,11 @@ watch(selectedOptions, (newValue) => {
             <span :style="{ width: `${progressBar}%` }" class="progress__bar-item"></span>
         </div>
 
-        <div class="descr">
+        <div v-if="progressBar !== 100" class="descr">
 
             <div class="descr__inner" v-if="selectedDay">
                 <h2 class="descr__title">
-                    {{ selectedDay.day_number }} день
+                    <span>{{ selectedDay.day_number }}</span> день
                 </h2>
                 <p class="descr__subtitle">{{ selectedDay.description }} </p>
             </div>
@@ -268,13 +323,23 @@ watch(selectedOptions, (newValue) => {
             </Button>
         </div>
 
+        <div class="course__complete" v-else>
+            <p class="title">Вы молодец!</p>
+            <p>Вы прошли этот 21-дневний курс, это очень круто!</p>
+            <p>Теперь вы, при желании, можете оценить данный курс и рассказать нам о своих результатах</p>
+
+            <RouterLink to="/review">
+                <Button btnTitle="Оценить курс"></Button>
+            </RouterLink>
+        </div>
+
     </div>
 
 </template>
 
 <style lang="scss" scoped>
 .container {
-    background-color: var(--color-gray);
+    position: relative;
 }
 
 .button {
@@ -293,6 +358,13 @@ watch(selectedOptions, (newValue) => {
     font-weight: 700;
     margin-block: 0 6px;
     line-height: 100%;
+    font-family: var(--font-amazing);
+
+    &-svg {
+        position: absolute;
+        right: 0;
+        top: 22px;
+    }
 }
 
 .subtitle {
@@ -345,10 +417,15 @@ watch(selectedOptions, (newValue) => {
 .descr {
 
     &__title {
+        font-family: var(--font-amazing);
         font-size: 36px;
         font-weight: 700;
         margin-top: 30px;
         margin-bottom: 10px;
+
+        span {
+            font-family: var(--font-inter);
+        }
     }
 
     &__subtitle {
@@ -356,6 +433,7 @@ watch(selectedOptions, (newValue) => {
         font-size: 20px;
         font-weight: 700;
         margin-bottom: 20px;
+        font-family: var(--font-amazing);
     }
 }
 
@@ -405,6 +483,21 @@ watch(selectedOptions, (newValue) => {
 
     .checkbox-text {
         font-size: 17px;
+    }
+}
+
+.course__complete {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 430px;
+    width: 100%;
+    gap: 20px;
+    text-align: center;
+    margin-top: 50px;
+
+    a {
+        width: 100%;
     }
 }
 </style>

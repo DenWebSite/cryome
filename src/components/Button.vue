@@ -16,6 +16,7 @@ const props = defineProps({
 <style scoped>
 
 .btn{
+    font-family: var(--font-amazing);
     font-size: 20px;
     font-weight: 500;
     text-align: center;

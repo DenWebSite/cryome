@@ -10,6 +10,8 @@ const mediaFiles = ref([])
 const hoverRating = ref(0)
 const rating = ref(0)
 
+const apiUrl = import.meta.env.VITE_API_URL
+
 const handleFileUpload = (event) => {
     const files = Array.from(event.target.files)
     files.forEach(file => {
@@ -58,7 +60,7 @@ const submitReview = async () => {
         }
 
         // Отправляем JSON
-        const response = await fetch('http://127.0.0.1:8080/api/review/create', {
+        const response = await fetch(`${apiUrl}/api/review/create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -132,7 +134,7 @@ const setRating = (star) => {
                         d="M15.091 10.4092C15.9194 10.4092 16.591 9.73761 16.591 8.90918C16.591 8.08075 15.9194 7.40918 15.091 7.40918C14.2626 7.40918 13.591 8.08075 13.591 8.90918C13.591 9.73761 14.2626 10.4092 15.091 10.4092Z"
                         fill="#303030" />
                 </svg>
-                <span>Добавьте фото или видео</span>
+                <span>Добавьте фото</span>
             </label>
 
             <!-- Превью загруженных файлов -->
@@ -176,9 +178,11 @@ const setRating = (star) => {
     text-align: center;
     font-size: 20px;
     font-weight: 700;
+    font-family: var(--font-amazing);
 }
 
 .title {
+    font-family: var(--font-amazing);
     font-size: 30px;
     font-weight: 700;
     margin-bottom: 6px;
