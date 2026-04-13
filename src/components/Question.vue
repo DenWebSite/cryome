@@ -67,7 +67,11 @@ const fetchQuestions = async () => {
     error.value = null
 
     try {
-        const response = await fetch('http://127.0.0.1:8080/api/diagnostic/questions')
+        const response = await fetch('http://127.0.0.1:8080/api/diagnostic/questions', {
+            headers: {
+                'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData
+            }
+        })
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`)
@@ -160,13 +164,12 @@ const submitResults = async () => {
                 'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             },
             body: JSON.stringify({
-                telegram_id: userStore.user?.id || userStore.userId?.value,
+                telegram_id: userStore.user?.id || userStore.userId(),
                 answers: formattedAnswers
             })
         })
 
         const result = await response.json()
-
 
         if (response.ok && result.success) {
             // Сохраняем результат в store
@@ -238,7 +241,7 @@ onMounted(() => {
         <Button @click="nextQuestion"
             :btnTitle="currentIndex === questions.length - 1 ? 'Подвести итоги' : 'Следующий вопрос'" />
 
-        <Button @click="prevQuestion" btnTitle="Предыдущий вопрос" v-show="currentIndex !== 0"/>
+        <Button @click="prevQuestion" btnTitle="Предыдущий вопрос" v-show="currentIndex !== 0" />
     </div>
 </template>
 

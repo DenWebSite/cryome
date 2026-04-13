@@ -9,7 +9,7 @@
                 <h1 class="title">Мы нашли твой идеальный уход</h1>
                 <p class="subtitle">Основано на состоянии кожи прямо сейчас</p>
 
-                <div class="results__box">
+                <div class="results__box" :style="{ backgroundColor: getProductBackgroundColor }">
                     <h2>{{ result.product?.name }}</h2>
                     <p>{{ result.product?.description }}</p>
                     <img src="/fluid.jpg" alt="">
@@ -20,7 +20,7 @@
                     <h2 class="results__guide-title">Как пользоваться флюидом?</h2>
 
                     <div class="results__guide-item" v-for="(task, index) in tasksArray" :key="index">
-                        <p class="results__guide-number">0{{ index+1 }}</p>
+                        <p class="results__guide-number">0{{ index + 1 }}</p>
                         <p class="results__guide-descr">{{ task }}</p>
                     </div>
                 </div>
@@ -45,8 +45,8 @@
                         <Button class="white" btnTitle="Купить на Ozon" />
                     </a>
 
-                    <RouterLink to="/course" @click="createCourse()">
-                        <Button class="olive" btnTitle="Я уже купил → активировать уход" />
+                    <RouterLink to="/course" @click="createCourse()" :style="{ backgroundColor: getProductBackgroundColor }">
+                        <Button btnTitle="Я уже купил → активировать уход" />
                     </RouterLink>
                 </div>
             </div>
@@ -72,19 +72,19 @@ const result = ref(null)
 const apiUrl = import.meta.env.VITE_API_URL
 
 const tasksArray = computed(() => {
-  if (!result.value?.product?.course_tasks) return []
-  return result.value.product.course_tasks.split(/\r?\n/).filter(t => t?.trim())
+    if (!result.value?.product?.course_tasks) return []
+    return result.value.product.course_tasks.split(/\r?\n/).filter(t => t?.trim())
 })
 
 const effectArray = computed(() => {
-  if (!result.value?.product?.course_effect) return []
-  return result.value.product.course_effect.split(/\r?\n/).filter(e => e?.trim())
+    if (!result.value?.product?.course_effect) return []
+    return result.value.product.course_effect.split(/\r?\n/).filter(e => e?.trim())
 })
 
 onMounted(() => {
     result.value = userStore.getDiagnosticResult()
     loading.value = false
-    
+
     if (!result.value) {
         router.push('/question')
     }
@@ -96,7 +96,7 @@ const createCourse = async () => {
         alert('Ошибка: не найден ID сессии')
         return
     }
-    
+
     try {
         const response = await fetch(`${apiUrl}/api/course/start`, {
             method: 'POST',
@@ -108,25 +108,40 @@ const createCourse = async () => {
                 session_id: userStore.diagnosticResult.session_id
             })
         })
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`)
         }
-        
+
         const resultData = await response.json()
         console.log('Курс создан:', resultData)
-        
+
         // ✅ Используем setCourse вместо прямого присвоения
         userStore.setCourse(resultData.data.CourseID)
-        
+
         // Переходим на страницу курса
         router.push('/course')
-        
+
     } catch (error) {
         console.error('Ошибка создания курса:', error)
         alert('Не удалось активировать курс. Попробуйте позже.')
     }
 }
+
+const getProductBackgroundColor = computed(() => {
+    const productName = result.value?.product?.name
+
+    if (!productName) return '#9CBF6E'
+
+    if (productName.includes('Глубокое') || productName === 'Флюид Глубокое увлажнение') {
+        return '#9CBF6E'
+    } else if (productName.includes('Интенсивное') || productName === 'Флюид Интенсивное питание') {
+        return '#92C8E1'
+    } else if (productName.includes('Витаминный') || productName === 'Флюид Витаминный бустер') {
+        return '#F1CE7E'
+    }
+    return '#9CBF6E'
+})
 </script>
 <style lang="scss" scoped>
 .effect {
@@ -178,10 +193,6 @@ const createCourse = async () => {
     border: 1px solid #C7C7C7;
 }
 
-.olive {
-    background-color: var(--color-olive);
-}
-
 .title {
     font-size: 36px;
     font-weight: 700;
@@ -230,7 +241,6 @@ const createCourse = async () => {
 }
 
 .results__box {
-    background-color: var(--color-olive);
     margin-top: 26px;
     padding: 25px 13px;
     border-radius: 30px;
