@@ -89,11 +89,22 @@ onUnmounted(() => {
 
 const getCourseDays = async () => {
     const telegram_id = userStore.user?.id || 999999;
-    const course_id = userStore.course;
+    let course_id = userStore.course;
+    
+    // ✅ Если course_id нет в store, берем из localStorage
+    if (!course_id) {
+        course_id = localStorage.getItem('user_course');
+        if (course_id) {
+            userStore.setCourse(course_id);
+        }
+    }
 
     if (!course_id) {
+        console.error('❌ Нет course_id в getCourseDays');
         return null;
     }
+
+    console.log('getCourseDays - course_id:', course_id);
 
     try {
         const url = `${apiUrl}/api/course/calendar?telegram_id=${telegram_id}&course_id=${course_id}`;
@@ -116,7 +127,6 @@ const getCourseDays = async () => {
         days.value = data.data || data;
         console.log('Дни загружены:', days.value);
 
-        // ✅ Выбираем первый НЕзавершённый день, если есть
         if (days.value.length > 0) {
             const firstIncompleteDay = days.value.find(day => !day.completed)
             selectedDay.value = firstIncompleteDay || days.value[0]
@@ -175,10 +185,24 @@ const setDayComplete = async (day) => {
         return;
     }
 
-    const course_id = userStore.course;
+    // ✅ ЛОГИРУЕМ для отладки
+    console.log('=== setDayComplete ===');
+    console.log('day_number:', day);
+    console.log('userStore.course:', userStore.course);
+    console.log('localStorage user_course:', localStorage.getItem('user_course'));
+    
+    // ✅ Берем course_id из store или localStorage
+    let course_id = userStore.course;
+    if (!course_id) {
+        course_id = localStorage.getItem('user_course');
+        console.log('course_id восстановлен из localStorage:', course_id);
+        if (course_id) {
+            userStore.setCourse(course_id);
+        }
+    }
 
     if (!course_id) {
-        alert('Курс не найден');
+        alert('Курс не найден. Пожалуйста, обновите страницу.');
         return;
     }
 
@@ -191,27 +215,35 @@ const setDayComplete = async (day) => {
             body: JSON.stringify({
                 telegram_id: userStore.user?.id || 999999,
                 day_number: day,
-                course_id: course_id,
+                course_id: parseInt(course_id), // ✅ Явно преобразуем в число
             })
         })
 
         const result = await response.json()
-        console.log('День завершён:', result);
+        console.log('Ответ сервера:', result);
 
         if (response.ok) {
+            // ✅ Обновляем локальный выбранный день до перезагрузки
+            const currentCompletedDay = day;
+            
             // Перезагружаем данные
             await getCourseDays();
             await getCourseProgress();
             await checkIsCourseComplete();
 
-            // Обновляем выбранный день
-            const updatedDay = days.value.find(d => d.day_number === day);
-            if (updatedDay) {
-                selectedDay.value = updatedDay;
+            // ✅ Находим следующий незавершенный день
+            const nextIncompleteDay = days.value.find(d => !d.completed);
+            if (nextIncompleteDay) {
+                selectedDay.value = nextIncompleteDay;
+            } else {
+                // Если все дни завершены
+                selectedDay.value = days.value[days.value.length - 1];
             }
 
             // Очищаем чекбоксы
             selectedOptions.value = [];
+            
+            console.log('День успешно завершен, следующий день:', selectedDay.value?.day_number);
         } else {
             alert('Ошибка: ' + (result.message || 'Не удалось завершить день'));
         }
