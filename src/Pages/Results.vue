@@ -100,8 +100,8 @@ const createCourse = async () => {
     userStore.course = result.data.CourseID
 }
 
-const tasksArray = result.course_tasks.split('\r\n');
-const effectArray = result.course_effect.split('\r\n');
+const tasksArray = result.product.course_tasks.split('\r\n');
+const effectArray = result.product.course_effect.split('\r\n');
 console.log(tasksArray);
 console.log(effectArray);
 </script>
