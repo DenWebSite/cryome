@@ -59,8 +59,7 @@
 </template>
 
 <script setup>
-
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/userStore'
 import Button from '@/components/Button.vue';
@@ -72,22 +71,25 @@ const result = ref(null)
 
 const apiUrl = import.meta.env.VITE_API_URL
 
+const tasksArray = computed(() => {
+  if (!result.value?.product?.course_tasks) return []
+  return result.value.product.course_tasks.split(/\r?\n/).filter(t => t?.trim())
+})
+
+const effectArray = computed(() => {
+  if (!result.value?.product?.course_effect) return []
+  return result.value.product.course_effect.split(/\r?\n/).filter(e => e?.trim())
+})
+
 onMounted(() => {
-    // Получаем результат из store
     result.value = userStore.getDiagnosticResult()
     loading.value = false
-
-    // Если нет результата, возвращаем на тест
-    if (!result.value) {
-        router.push('/question')
-    }
 })
 
 const createCourse = async () => {
     const response = await fetch(`${apiUrl}/api/course/start`, {
         method: 'POST',
         headers: {
-            // 'X-Telegram-Init-Data': window.Telegram.WebApp.initData,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -95,15 +97,10 @@ const createCourse = async () => {
         })
     })
 
-    const result = await response.json()
-    console.log(result);
-    userStore.course = result.data.CourseID
+    const resultData = await response.json()
+    console.log(resultData)
+    userStore.course = resultData.data.CourseID
 }
-
-const tasksArray = result.product.course_tasks.split('\r\n');
-const effectArray = result.product.course_effect.split('\r\n');
-console.log(tasksArray);
-console.log(effectArray);
 </script>
 
 <style lang="scss" scoped>
