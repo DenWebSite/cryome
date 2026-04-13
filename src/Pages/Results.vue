@@ -101,7 +101,8 @@ const createCourse = async () => {
         const response = await fetch(`${apiUrl}/api/course/start`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             },
             body: JSON.stringify({
                 session_id: userStore.diagnosticResult.session_id

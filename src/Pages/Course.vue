@@ -88,7 +88,7 @@ onUnmounted(() => {
 })
 
 const getCourseDays = async () => {
-    const telegram_id = userStore.user?.id || 999999;
+    const telegram_id = userStore.user?.id || userStore.userId?.value
     let course_id = userStore.course;
     
     if (!course_id) {
@@ -113,6 +113,7 @@ const getCourseDays = async () => {
             method: 'GET',
             headers: {
                 "Content-type": 'application/json',
+                'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             }
         });
 
@@ -140,7 +141,7 @@ const getCourseDays = async () => {
 }
 
 const getCourseProgress = async () => {
-    const telegram_id = userStore.user?.id || 999999;
+    const telegram_id = userStore.user?.id || userStore.userId?.value
     const course_id = userStore.course;
 
     if (!course_id) {
@@ -154,6 +155,7 @@ const getCourseProgress = async () => {
             method: 'GET',
             headers: {
                 "Content-type": 'application/json',
+                'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             }
         });
 
@@ -210,9 +212,10 @@ const setDayComplete = async (day) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             },
             body: JSON.stringify({
-                telegram_id: userStore.user?.id || 999999,
+                telegram_id: userStore.user?.id || userStore.userId?.value,
                 day_number: day,
                 course_id: parseInt(course_id), 
             })
@@ -254,7 +257,7 @@ const setDayComplete = async (day) => {
 }
 
 const checkIsCourseComplete = async () => {
-    const telegram_id = userStore.user?.id || 999999;
+    const telegram_id = userStore.user?.id;
     const course_id = userStore.course;
 
     console.log('checkIsCourseComplete - course_id:', course_id);
@@ -270,6 +273,7 @@ const checkIsCourseComplete = async () => {
             method: 'GET',
             headers: {
                 "Content-type": 'application/json',
+                'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             }
         });
 

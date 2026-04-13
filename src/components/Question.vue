@@ -152,21 +152,15 @@ const submitResults = async () => {
             }
         }
 
-        console.log('Отправляемые данные:', {
-            telegram_id: 999999,
-            answers: formattedAnswers
-        })
-
         // Отправляем запрос
         const response = await fetch('http://127.0.0.1:8080/api/diagnostic/submit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 'X-Telegram-Init-Data': window.Telegram.WebApp.initData
+                'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             },
             body: JSON.stringify({
-                telegram_id: 999999,
-                // telegram_id: userStore.user?.id || userStore.userId?.value || 999999,
+                telegram_id: userStore.user?.id || userStore.userId?.value,
                 answers: formattedAnswers
             })
         })

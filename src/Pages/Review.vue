@@ -62,9 +62,10 @@ const submitReview = async () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             },
             body: JSON.stringify({
-                telegram_id: userStore.user?.id || userStore.userId?.value || 999999,
+                telegram_id: userStore.user?.id || userStore.userId?.value,
                 rating: rating.value,
                 comment: reviewText.value,
                 photo_url: photoBase64

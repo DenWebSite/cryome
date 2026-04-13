@@ -39,17 +39,18 @@ export const useUserStore = defineStore('user', () => {
       tg.expand()
 
       isTelegramReady.value = true
-    } else {
-      if (import.meta.env.DEV) {
-        user.value = {
-          id: 999999,
-          first_name: 'Тестовый',
-          last_name: 'Пользователь',
-          username: 'testuser',
-          language_code: 'ru'
-        }
-      }
-    }
+    } 
+    // else {
+    //   if (import.meta.env.DEV) {
+    //     user.value = {
+    //       id: 999999,
+    //       first_name: 'Тестовый',
+    //       last_name: 'Пользователь',
+    //       username: 'testuser',
+    //       language_code: 'ru'
+    //     }
+    //   }
+    // }
   }
 
   // Геттеры (computed)
