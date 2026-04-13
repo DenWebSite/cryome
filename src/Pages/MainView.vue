@@ -18,11 +18,11 @@ const course_id = userStore.course;
         <p class="hero__subtitle">Это про точное попадание в состояние кожи сегодня.</p>
 
         <div class="buttons">
-            <RouterLink to="/course" v-show="course_id">
+            <RouterLink to="/course" v-if="course_id">
                 <Button btnTitle="К курсу"></Button>
             </RouterLink>
 
-            <RouterLink to="/secondpage">
+            <RouterLink to="/secondpage" v-else>
                 <Button btnTitle="Начать диагностику"></Button>
             </RouterLink>
         </div>

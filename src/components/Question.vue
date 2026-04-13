@@ -82,21 +82,23 @@ const fetchQuestions = async () => {
             answers.value = JSON.parse(savedAnswers)
         }
 
-        // Находим последний отвеченный вопрос
-        const lastAnsweredIndex = questions.value.findIndex(q => {
-            const answer = answers.value[q.id]
-            if (q.is_multiple) {
-                return !answer || answer.length === 0
-            } else {
-                return !answer
-            }
-        })
+        currentIndex.value = 0
 
-        if (lastAnsweredIndex !== -1) {
-            currentIndex.value = lastAnsweredIndex
-        } else if (Object.keys(answers.value).length === questions.value.length) {
-            currentIndex.value = questions.value.length - 1
-        }
+        // Находим последний отвеченный вопрос
+        // const lastAnsweredIndex = questions.value.findIndex(q => {
+        //     const answer = answers.value[q.id]
+        //     if (q.is_multiple) {
+        //         return !answer || answer.length === 0
+        //     } else {
+        //         return !answer
+        //     }
+        // })
+
+        // if (lastAnsweredIndex !== -1) {
+        //     currentIndex.value = lastAnsweredIndex
+        // } else if (Object.keys(answers.value).length === questions.value.length) {
+        //     currentIndex.value = questions.value.length - 1
+        // }
 
     } catch (err) {
         error.value = err.message
@@ -242,7 +244,7 @@ onMounted(() => {
         <Button @click="nextQuestion"
             :btnTitle="currentIndex === questions.length - 1 ? 'Подвести итоги' : 'Следующий вопрос'" />
 
-        <Button @click="prevQuestion" btnTitle="Предыдущий вопрос" />
+        <Button @click="prevQuestion" btnTitle="Предыдущий вопрос" v-show="currentIndex !== 0"/>
     </div>
 </template>
 

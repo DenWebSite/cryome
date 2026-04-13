@@ -91,7 +91,6 @@ const getCourseDays = async () => {
     const telegram_id = userStore.user?.id || 999999;
     let course_id = userStore.course;
     
-    // ✅ Если course_id нет в store, берем из localStorage
     if (!course_id) {
         course_id = localStorage.getItem('user_course');
         if (course_id) {
@@ -110,7 +109,7 @@ const getCourseDays = async () => {
         const url = `${apiUrl}/api/course/calendar?telegram_id=${telegram_id}&course_id=${course_id}`;
         console.log('URL:', url);
 
-        const response = await fetch(url, {
+        const response = await fetch(url, { 
             method: 'GET',
             headers: {
                 "Content-type": 'application/json',
@@ -215,7 +214,7 @@ const setDayComplete = async (day) => {
             body: JSON.stringify({
                 telegram_id: userStore.user?.id || 999999,
                 day_number: day,
-                course_id: parseInt(course_id), // ✅ Явно преобразуем в число
+                course_id: parseInt(course_id), 
             })
         })
 

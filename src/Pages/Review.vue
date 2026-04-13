@@ -53,13 +53,11 @@ const submitReview = async () => {
     }
 
     try {
-        // Конвертируем фото в base64, если есть
         let photoBase64 = ""
         if (mediaFiles.value.length > 0) {
             photoBase64 = await fileToBase64(mediaFiles.value[0].file)
         }
 
-        // Отправляем JSON
         const response = await fetch(`${apiUrl}/api/review/create`, {
             method: 'POST',
             headers: {
@@ -69,7 +67,7 @@ const submitReview = async () => {
                 telegram_id: userStore.user?.id || userStore.userId?.value || 999999,
                 rating: rating.value,
                 comment: reviewText.value,
-                photo_url: photoBase64  // отправляем base64 строку
+                photo_url: photoBase64
             })
         })
 
