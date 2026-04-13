@@ -16,28 +16,73 @@ const selectedDay = ref();
 
 const apiUrl = import.meta.env.VITE_API_URL
 
-onMounted(async () => {
-    if (window.Telegram?.WebApp) {
-        const tg = window.Telegram.WebApp
-        tg.BackButton.show()
-        tg.BackButton.onClick(() => {
-            router.back()
-        })
+// ✅ Функция для восстановления курса из localStorage
+const restoreCourseFromStorage = () => {
+    if (!userStore.course) {
+        const savedCourse = localStorage.getItem('user_course')
+        if (savedCourse) {
+            console.log('Курс восстановлен из localStorage:', savedCourse)
+            userStore.course = savedCourse
+            return true
+        }
     }
-    if (userStore.course) {
-        console.log('Курс найден в store при монтировании:', userStore.course);
+    return !!userStore.course
+}
+
+// ✅ Функция загрузки всех данных
+const loadCourseData = async () => {
+    if (!userStore.course) {
+        console.log('Нет course_id, данные не загружены')
+        return false
+    }
+    
+    try {
         await Promise.all([
             getCourseDays(),
             getCourseProgress()
-        ]);
+        ])
+        return true
+    } catch (error) {
+        console.error('Ошибка загрузки данных курса:', error)
+        return false
+    }
+}
+
+onMounted(async () => {
+    // Настройка Telegram
+    if (window.Telegram?.WebApp) {
+        const tg = window.Telegram.WebApp
+        if (tg.BackButton) {
+            tg.BackButton.show()
+            tg.BackButton.onClick(() => {
+                router.back()
+            })
+        }
+    }
+    
+    // ✅ Курс уже должен восстановиться из localStorage при создании store
+    // Но на всякий случай проверяем
+    if (!userStore.course) {
+        const savedCourse = localStorage.getItem('user_course')
+        if (savedCourse) {
+            userStore.setCourse(savedCourse)
+        }
+    }
+    
+    if (userStore.course) {
+        console.log('Курс найден, ID:', userStore.course)
+        await Promise.all([
+            getCourseDays(),
+            getCourseProgress()
+        ])
     } else {
-        console.log('Курс не найден в store, ждем установки...');
-        // watch сработает, когда курс появится
+        console.log('Курс не найден, перенаправляем на результаты')
+        router.push('/results')
     }
 })
 
 onUnmounted(() => {
-    if (window.Telegram?.WebApp) {
+    if (window.Telegram?.WebApp && window.Telegram.WebApp.BackButton) {
         window.Telegram.WebApp.BackButton.hide()
     }
 })
@@ -71,9 +116,10 @@ const getCourseDays = async () => {
         days.value = data.data || data;
         console.log('Дни загружены:', days.value);
 
-        // Автоматически выбираем первый день, если ещё не выбран
-        if (days.value.length > 0 && !selectedDay.value) {
-            selectedDay.value = days.value[0];
+        // ✅ Выбираем первый НЕзавершённый день, если есть
+        if (days.value.length > 0) {
+            const firstIncompleteDay = days.value.find(day => !day.completed)
+            selectedDay.value = firstIncompleteDay || days.value[0]
         }
 
         return days.value;
@@ -215,21 +261,18 @@ const checkIsCourseComplete = async () => {
     }
 }
 
-// Следим за загрузкой курса в store
-watch(() => userStore.course, async (newCourse) => {
-    if (newCourse) {
-        console.log('Курс загружен в store, ID:', newCourse);
-        await getCourseDays();
-        await getCourseProgress();
+watch(() => userStore.course, async (newCourse, oldCourse) => {
+    if (newCourse && newCourse !== oldCourse) {
+        console.log('Курс изменился, загружаем данные...')
+        await getCourseDays()
+        await getCourseProgress()
     }
-}, { immediate: true })
+})
 
-// Следим за чекбоксами
 watch(selectedOptions, (newValue) => {
     isFormValid.value = newValue.length === 3;
 }, { deep: true });
 </script>
-
 <template>
 
     <div class="container gray">

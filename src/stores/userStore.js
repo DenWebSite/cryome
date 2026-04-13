@@ -9,8 +9,20 @@ export const useUserStore = defineStore('user', () => {
   const isTelegramReady = ref(false)
 
   const diagnosticResult = ref(null)
+  const course = ref(null)
 
-  const course = ref(null);
+  // ✅ Инициализация при создании store - восстанавливаем из localStorage
+  const savedCourse = localStorage.getItem('user_course')
+  if (savedCourse) {
+    course.value = savedCourse
+    console.log('Course restored from localStorage:', savedCourse)
+  }
+
+  const savedDiagnosticResult = localStorage.getItem('diagnosticResult')
+  if (savedDiagnosticResult) {
+    diagnosticResult.value = JSON.parse(savedDiagnosticResult)
+    console.log('Diagnostic result restored from localStorage')
+  }
 
   const initTelegramUser = () => {
     if (window.Telegram && window.Telegram.WebApp) {
@@ -61,6 +73,22 @@ export const useUserStore = defineStore('user', () => {
     return diagnosticResult.value || JSON.parse(localStorage.getItem('diagnosticResult') || 'null')
   }
 
+  // ✅ ДОБАВИТЬ: метод для установки курса с сохранением в localStorage
+  const setCourse = (courseId) => {
+    course.value = courseId
+    if (courseId) {
+      localStorage.setItem('user_course', courseId)
+      console.log('Course saved to localStorage:', courseId)
+    } else {
+      localStorage.removeItem('user_course')
+    }
+  }
+
+  // ✅ ДОБАВИТЬ: метод для очистки курса
+  const clearCourse = () => {
+    course.value = null
+    localStorage.removeItem('user_course')
+  }
 
   return {
     // Состояние
@@ -71,8 +99,14 @@ export const useUserStore = defineStore('user', () => {
 
     diagnosticResult,
     course,
+    
+    // Методы диагностики
     setDiagnosticResult,
     getDiagnosticResult,
+    
+    // ✅ Методы курса (ДОБАВИТЬ)
+    setCourse,
+    clearCourse,
 
     // Действия
     initTelegramUser,

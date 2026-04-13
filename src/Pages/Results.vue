@@ -84,25 +84,49 @@ const effectArray = computed(() => {
 onMounted(() => {
     result.value = userStore.getDiagnosticResult()
     loading.value = false
+    
+    if (!result.value) {
+        router.push('/question')
+    }
 })
 
 const createCourse = async () => {
-    const response = await fetch(`${apiUrl}/api/course/start`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            session_id: userStore.diagnosticResult.session_id
+    if (!userStore.diagnosticResult?.session_id) {
+        console.error('Нет session_id')
+        alert('Ошибка: не найден ID сессии')
+        return
+    }
+    
+    try {
+        const response = await fetch(`${apiUrl}/api/course/start`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                session_id: userStore.diagnosticResult.session_id
+            })
         })
-    })
-
-    const resultData = await response.json()
-    console.log(resultData)
-    userStore.course = resultData.data.CourseID
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const resultData = await response.json()
+        console.log('Курс создан:', resultData)
+        
+        // ✅ Используем setCourse вместо прямого присвоения
+        userStore.setCourse(resultData.data.CourseID)
+        
+        // Переходим на страницу курса
+        router.push('/course')
+        
+    } catch (error) {
+        console.error('Ошибка создания курса:', error)
+        alert('Не удалось активировать курс. Попробуйте позже.')
+    }
 }
 </script>
-
 <style lang="scss" scoped>
 .effect {
     margin-top: 30px;
