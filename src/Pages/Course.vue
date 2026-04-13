@@ -16,13 +16,23 @@ const selectedDay = ref();
 
 const apiUrl = import.meta.env.VITE_API_URL
 
-onMounted(() => {
+onMounted(async () => {
     if (window.Telegram?.WebApp) {
         const tg = window.Telegram.WebApp
         tg.BackButton.show()
         tg.BackButton.onClick(() => {
             router.back()
         })
+    }
+    if (userStore.course) {
+        console.log('Курс найден в store при монтировании:', userStore.course);
+        await Promise.all([
+            getCourseDays(),
+            getCourseProgress()
+        ]);
+    } else {
+        console.log('Курс не найден в store, ждем установки...');
+        // watch сработает, когда курс появится
     }
 })
 
@@ -78,15 +88,12 @@ const getCourseProgress = async () => {
     const telegram_id = userStore.user?.id || 999999;
     const course_id = userStore.course;
 
-    console.log('getCourseProgress - course_id:', course_id);
-
     if (!course_id) {
         return null;
     }
 
     try {
         const url = `${apiUrl}/api/course/user/progress?telegram_id=${telegram_id}&course_id=${course_id}`;
-        console.log('Progress URL:', url);
 
         const response = await fetch(url, {
             method: 'GET',
