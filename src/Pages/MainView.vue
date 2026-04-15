@@ -1,5 +1,6 @@
 <script setup>
 import Button from '@/components/Button.vue';
+import { ref } from 'vue'
 import { RouterLink } from 'vue-router';
 import { useUserStore } from '.././stores/userStore'
 

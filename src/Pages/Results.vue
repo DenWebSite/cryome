@@ -31,8 +31,6 @@
                         <h3 class="effect__title">Эффект через <span>21</span> день:</h3>
                         <ul class="effect__list">
                             <li class="effect__list-item" v-for="effect in effectArray">{{ effect }}</li>
-                            <li>Lorem, ipsum.</li>
-                            <li>Lorem, ipsum.</li>
                         </ul>
 
                         <p class="effect__text">CryoMe — когда нужен эффект</p>
@@ -63,13 +61,17 @@
             </div>
         </div>
     </div>
+    <CustomAlert ref="alert" />
 </template>
 
 <script setup>
+import CustomAlert from '@/components/CustomAlert.vue';
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/userStore'
 import Button from '@/components/Button.vue';
+
+const alert = ref()
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -112,7 +114,8 @@ onMounted(() => {
 const createCourse = async () => {
     if (!userStore.diagnosticResult?.session_id) {
         console.error('Нет session_id')
-        alert('Ошибка: не найден ID сессии')
+        alert.value.show('Ошибка: не найден ID сессии')
+
         return
     }
 
@@ -141,7 +144,7 @@ const createCourse = async () => {
 
     } catch (error) {
         console.error('Ошибка создания курса:', error)
-        alert('Не удалось активировать курс. Попробуйте позже.')
+        alert.value.show('Не удалось активировать курс. Попробуйте позже.')
     }
 }
 
@@ -222,7 +225,7 @@ const getProductBackgroundColor = computed(() => {
             transform: translateX(-50%);
         }
 
-        img{
+        img {
             width: 100%;
             max-height: 234px;
             object-fit: cover;

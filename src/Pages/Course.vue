@@ -4,6 +4,9 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '.././stores/userStore'
 import Button from './../components/Button.vue'
+import CustomAlert from '@/components/CustomAlert.vue';
+
+const alert = ref()
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -202,7 +205,7 @@ const setDayComplete = async (day) => {
     }
 
     if (!course_id) {
-        alert('Курс не найден. Пожалуйста, обновите страницу.');
+        alert.value.show('Курс не найден. Пожалуйста, обновите страницу.')
         return;
     }
 
@@ -246,12 +249,12 @@ const setDayComplete = async (day) => {
 
             console.log('День успешно завершен, следующий день:', selectedDay.value?.day_number);
         } else {
-            alert('Ошибка: ' + (result.message || 'Не удалось завершить день'));
+            alert.value.show('Ошибка: ' + (result.message || 'Не удалось завершить день'))
         }
 
     } catch (err) {
         console.error('Ошибка при отправке:', err)
-        alert('Ошибка соединения. Проверьте подключение к серверу.')
+        alert.value.show('Ошибка соединения. Проверьте подключение к серверу.')
     }
 }
 
@@ -308,7 +311,7 @@ watch(selectedOptions, (newValue) => {
 }, { deep: true });
 </script>
 <template>
-
+    <CustomAlert ref="alert" />
     <div class="container gray">
         <h1 class="title">
             Начинаем трансформацию кожи
@@ -504,11 +507,11 @@ watch(selectedOptions, (newValue) => {
 
     &__title {
         font-family: var(--font-amazing);
-        font-size: 32px;
+        font-size: 28px;
         font-weight: 700;
         margin-top: 30px;
         margin-bottom: 10px;
-        line-height: 110%;
+        line-height: 104%;
 
         span {
             font-family: var(--font-inter);
@@ -517,7 +520,7 @@ watch(selectedOptions, (newValue) => {
 
     &__subtitle {
         line-height: 100%;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 700;
         margin-bottom: 20px;
         font-family: var(--font-amazing);

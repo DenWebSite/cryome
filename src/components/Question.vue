@@ -3,6 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import Button from './Button.vue'
 import { useUserStore } from '.././stores/userStore'
 import router from '@/router'
+import CustomAlert from '@/components/CustomAlert.vue';
+const alert = ref()
 
 const userStore = useUserStore()
 
@@ -134,7 +136,7 @@ const submitResults = async () => {
             else if (!question.is_multiple && answerValue) {
                 formattedAnswers.push({
                     questionID: parseInt(questionId),
-                    answerID: parseInt(answerValue)  
+                    answerID: parseInt(answerValue)
                 })
             }
         }
@@ -162,12 +164,11 @@ const submitResults = async () => {
             router.push('/results')
         } else {
             console.error('Ошибка сервера:', result)
-            // Показываем пользователю сообщение об ошибке
-            alert('Не удалось сохранить результаты. Попробуйте еще раз.')
+            alert.value.show('Ошибка сервера: ', result)
         }
     } catch (err) {
         console.error('Ошибка при отправке:', err)
-        alert('Ошибка соединения. Проверьте подключение к серверу.')
+        alert.value.show('Ошибка соединения. Проверьте подключение к серверу.')
         const errorData = await response.json()
         console.error('Детали ошибки сервера:', errorData)
         throw new Error(`Server error: ${response.status}`)
@@ -181,6 +182,7 @@ onMounted(() => {
 </script>
 
 <template>
+    <CustomAlert ref="alert" />
     <div class="question-container">
         <!-- Загрузка -->
         <div v-if="loading" class="loading">

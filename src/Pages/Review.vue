@@ -2,6 +2,10 @@
 import { ref } from 'vue'
 import Button from './../components/Button.vue'
 import { useUserStore } from '.././stores/userStore'
+import CustomAlert from '@/components/CustomAlert.vue';
+
+
+const alert = ref()
 
 const userStore = useUserStore()
 
@@ -44,13 +48,13 @@ const fileToBase64 = (file) => {
 const submitReview = async () => {
     // Проверка рейтинга
     if (rating.value === 0) {
-        alert('Пожалуйста, оцените курс (1-5 звезд)')
+        alert.value.show('Пожалуйста, оцените курс (1-5 звезд)')
         return
     }
 
     // Проверка текста отзыва
     if (!reviewText.value.trim()) {
-        alert('Пожалуйста, напишите отзыв')
+        alert.value.show('Пожалуйста, напишите отзыв')
         return
     }
 
@@ -83,11 +87,11 @@ const submitReview = async () => {
             userStore.clearCourse();// очитка courseID 
         } else {
             const error = await response.json()
-            alert('Ошибка: ' + (error.message || 'Не удалось отправить отзыв'))
+            alert.value.show('Ошибка: ' + (error.message || 'Не удалось отправить отзыв'))
         }
     } catch (error) {
         console.error('Ошибка:', error)
-        alert('Ошибка соединения. Проверьте подключение к серверу.')
+        alert.value.show('Ошибка соединения. Проверьте подключение к серверу.')
     }
 }
 
@@ -103,6 +107,7 @@ const setRating = (star) => {
 </script>
 
 <template>
+    <CustomAlert ref="alert" />
     <div class="container gray">
         <p class="under-title">CryoMe</p>
         <div v-if="!isCongratulationsVisible" class="review__main">
@@ -170,7 +175,7 @@ const setRating = (star) => {
 </template>
 
 <style lang="scss" scoped>
-.review__upload{
+.review__upload {
     text-align: center;
 }
 
