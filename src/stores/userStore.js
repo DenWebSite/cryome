@@ -10,6 +10,7 @@ export const useUserStore = defineStore('user', () => {
 
   const diagnosticResult = ref(null)
   const course = ref(null)
+  const testAnswers = ref(null)
 
   // ✅ Инициализация при создании store - восстанавливаем из localStorage
   const savedCourse = localStorage.getItem('user_course')
@@ -22,6 +23,12 @@ export const useUserStore = defineStore('user', () => {
   if (savedDiagnosticResult) {
     diagnosticResult.value = JSON.parse(savedDiagnosticResult)
     console.log('Diagnostic result restored from localStorage')
+  }
+
+  const savedTestAnswers = localStorage.getItem('testAnswers')
+  if (savedTestAnswers) {
+    testAnswers.value = JSON.parse(savedTestAnswers)
+    console.log('Test answers restored from localStorage')
   }
 
   const initTelegramUser = () => {
@@ -74,7 +81,15 @@ export const useUserStore = defineStore('user', () => {
     return diagnosticResult.value || JSON.parse(localStorage.getItem('diagnosticResult') || 'null')
   }
 
-  // ✅ ДОБАВИТЬ: метод для установки курса с сохранением в localStorage
+  const setTestAnswers = (answers) => {
+    testAnswers.value = answers
+    localStorage.setItem('testAnswers', JSON.stringify(answers))
+  }
+
+  const getTestAnswers = () => {
+    return testAnswers.value || JSON.parse(localStorage.getItem('testAnswers') || 'null')
+  }
+
   const setCourse = (courseId) => {
     course.value = courseId
     if (courseId) {
@@ -85,10 +100,35 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  // ✅ ДОБАВИТЬ: метод для очистки курса
   const clearCourse = () => {
     course.value = null
+    diagnosticResult.value = null
+    testAnswers.value = null
+    
     localStorage.removeItem('user_course')
+    localStorage.removeItem('diagnosticResult')
+    localStorage.removeItem('testAnswers')
+  }
+
+  const clearDiagnostic = () => {
+    diagnosticResult.value = null
+    localStorage.removeItem('diagnosticResult')
+  }
+
+  const clearTestAnswers = () => {
+    testAnswers.value = null
+    localStorage.removeItem('testAnswers')
+  }
+
+  const clearAllUserData = () => {
+    user.value = null
+    course.value = null
+    diagnosticResult.value = null
+    testAnswers.value = null
+    
+    localStorage.removeItem('user_course')
+    localStorage.removeItem('diagnosticResult')
+    localStorage.removeItem('testAnswers')
   }
 
   return {
@@ -100,14 +140,22 @@ export const useUserStore = defineStore('user', () => {
 
     diagnosticResult,
     course,
+    testAnswers,
     
     // Методы диагностики
     setDiagnosticResult,
     getDiagnosticResult,
     
-    // ✅ Методы курса (ДОБАВИТЬ)
+    // Методы для testAnswers
+    setTestAnswers,
+    getTestAnswers,
+    
+    // Методы курса
     setCourse,
     clearCourse,
+    clearDiagnostic,
+    clearTestAnswers,
+    clearAllUserData,
 
     // Действия
     initTelegramUser,

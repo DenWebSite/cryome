@@ -28,12 +28,14 @@
                 <div class="effect">
                     <img src="/result-2.jpg" alt="image">
                     <div class="effect__inner">
-                        <h3 class="effect__title">Эффект через 21 день:</h3>
+                        <h3 class="effect__title">Эффект через <span>21</span> день:</h3>
                         <ul class="effect__list">
                             <li class="effect__list-item" v-for="effect in effectArray">{{ effect }}</li>
+                            <li>Lorem, ipsum.</li>
+                            <li>Lorem, ipsum.</li>
                         </ul>
 
-                        <p class="effect__text">CryoMe — <br>когда нужен эффект</p>
+                        <p class="effect__text">CryoMe — когда нужен эффект</p>
                     </div>
                 </div>
 
@@ -51,8 +53,7 @@
                     </RouterLink>
 
                     <RouterLink to="/course" v-else>
-                        <Button btnTitle="Перейти к курсу"
-                            :style="{ backgroundColor: getProductBackgroundColor }" />
+                        <Button btnTitle="Перейти к курсу" :style="{ backgroundColor: getProductBackgroundColor }" />
                     </RouterLink>
                 </div>
             </div>
@@ -177,8 +178,14 @@ const getProductBackgroundColor = computed(() => {
     }
 
     &__title {
-        font-weight: 500;
+        font-family: var(--font-amazing);
+        font-weight: 700;
         line-height: 100%;
+        margin-block: 20px;
+
+        span {
+            font-family: var(--font-inter);
+        }
     }
 
     &__list {
@@ -195,6 +202,31 @@ const getProductBackgroundColor = computed(() => {
         line-height: 100%;
         position: absolute;
         bottom: 20px;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .effect {
+        display: flex;
+        flex-direction: column;
+
+        &__inner {
+            width: 100%;
+            text-align: center;
+        }
+
+        &__text {
+            width: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        img{
+            width: 100%;
+            max-height: 234px;
+            object-fit: cover;
+        }
     }
 }
 

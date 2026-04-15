@@ -80,7 +80,7 @@ const submitReview = async () => {
             rating.value = 0
             reviewText.value = ''
             mediaFiles.value = []
-            userStore.clearCourse(); // очитка courseID 
+            userStore.clearCourse();// очитка courseID 
         } else {
             const error = await response.json()
             alert('Ошибка: ' + (error.message || 'Не удалось отправить отзыв'))

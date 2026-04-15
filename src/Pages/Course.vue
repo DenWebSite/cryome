@@ -365,7 +365,7 @@ watch(selectedOptions, (newValue) => {
 
             <div class="descr__inner" v-if="selectedDay">
                 <h2 class="descr__title">
-                    <span>{{ selectedDay.day_number }}</span> день
+                    <span>{{ selectedDay.day_number }}</span> день. {{ selectedDay.title }}
                 </h2>
                 <p class="descr__subtitle">{{ selectedDay.description }} </p>
             </div>
@@ -408,7 +408,7 @@ watch(selectedOptions, (newValue) => {
             </Button>
         </div>
 
-        <div class="course__complete">
+        <div class="course__complete" v-else>
             <p class="title">Вы молодец!</p>
             <p>Вы прошли этот 21-дневний курс, это очень круто!</p>
             <p>Теперь вы, при желании, можете оценить данный курс и рассказать нам о своих результатах</p>
