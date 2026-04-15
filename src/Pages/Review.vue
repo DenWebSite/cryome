@@ -80,6 +80,7 @@ const submitReview = async () => {
             rating.value = 0
             reviewText.value = ''
             mediaFiles.value = []
+            userStore.clearCourse(); // очитка courseID 
         } else {
             const error = await response.json()
             alert('Ошибка: ' + (error.message || 'Не удалось отправить отзыв'))
@@ -156,17 +157,13 @@ const setRating = (star) => {
                 :disabled="!reviewText.trim() || rating.value === 0" />
         </div>
 
-        <div class="review__upload">
+        <div class="review__upload" v-else>
             <h1 class="title">Ваш отзыв отправлен!</h1>
         </div>
 
         <p class="bottom-text">Продолжи уход с новыми качественными продуктами от нас</p>
 
-        <a href="">
-            <Button btnTitle="Приобрести новый уход"></Button>
-        </a>
-
-        <RouterLink to="/">
+        <RouterLink to="/" @click="userStore.clearCourse()">
             <Button class="btn-alt" btnTitle="Пройти диагностику заново"></Button>
         </RouterLink>
     </div>

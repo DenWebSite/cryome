@@ -35,7 +35,7 @@ const loadCourseData = async () => {
         console.log('Нет course_id, данные не загружены')
         return false
     }
-    
+
     try {
         await Promise.all([
             getCourseDays(),
@@ -59,7 +59,7 @@ onMounted(async () => {
             })
         }
     }
-    
+
     // ✅ Курс уже должен восстановиться из localStorage при создании store
     // Но на всякий случай проверяем
     if (!userStore.course) {
@@ -68,7 +68,7 @@ onMounted(async () => {
             userStore.setCourse(savedCourse)
         }
     }
-    
+
     if (userStore.course) {
         console.log('Курс найден, ID:', userStore.course)
         await Promise.all([
@@ -77,7 +77,7 @@ onMounted(async () => {
         ])
     } else {
         console.log('Курс не найден, перенаправляем на результаты')
-        router.push('/results')
+        // router.push('/results')
     }
 })
 
@@ -90,7 +90,7 @@ onUnmounted(() => {
 const getCourseDays = async () => {
     const telegram_id = userStore.user?.id || userStore.userId?.value
     let course_id = userStore.course;
-    
+
     if (!course_id) {
         course_id = localStorage.getItem('user_course');
         if (course_id) {
@@ -109,7 +109,7 @@ const getCourseDays = async () => {
         const url = `${apiUrl}/api/course/calendar?telegram_id=${telegram_id}&course_id=${course_id}`;
         console.log('URL:', url);
 
-        const response = await fetch(url, { 
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 "Content-type": 'application/json',
@@ -182,7 +182,6 @@ const setSelectedDay = (day) => {
 
 const setDayComplete = async (day) => {
     if (selectedOptions.value.length !== 3) {
-        alert('Пожалуйста, отметьте все пункты');
         return;
     }
 
@@ -191,7 +190,7 @@ const setDayComplete = async (day) => {
     console.log('day_number:', day);
     console.log('userStore.course:', userStore.course);
     console.log('localStorage user_course:', localStorage.getItem('user_course'));
-    
+
     // ✅ Берем course_id из store или localStorage
     let course_id = userStore.course;
     if (!course_id) {
@@ -217,7 +216,7 @@ const setDayComplete = async (day) => {
             body: JSON.stringify({
                 telegram_id: userStore.user?.id || userStore.userId?.value,
                 day_number: day,
-                course_id: parseInt(course_id), 
+                course_id: parseInt(course_id),
             })
         })
 
@@ -227,7 +226,7 @@ const setDayComplete = async (day) => {
         if (response.ok) {
             // ✅ Обновляем локальный выбранный день до перезагрузки
             const currentCompletedDay = day;
-            
+
             // Перезагружаем данные
             await getCourseDays();
             await getCourseProgress();
@@ -244,7 +243,7 @@ const setDayComplete = async (day) => {
 
             // Очищаем чекбоксы
             selectedOptions.value = [];
-            
+
             console.log('День успешно завершен, следующий день:', selectedDay.value?.day_number);
         } else {
             alert('Ошибка: ' + (result.message || 'Не удалось завершить день'));
@@ -316,20 +315,21 @@ watch(selectedOptions, (newValue) => {
             и бережный уход за ней
         </h1>
 
-        <svg class="title-svg" width="29" height="29" viewBox="0 0 29 29" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <g clip-path="url(#clip0_1619_2)">
-                <path
-                    d="M11.7812 4.53125H17.2187M17.4495 6.00542C17.2983 5.73514 17.2188 5.43063 17.2187 5.12092V1.8125C17.2187 1.57215 17.1233 1.34164 16.9533 1.17168C16.7833 1.00173 16.5528 0.90625 16.3125 0.90625H12.6875C12.4471 0.90625 12.2166 1.00173 12.0467 1.17168C11.8767 1.34164 11.7812 1.57215 11.7812 1.8125V5.12092C11.7811 5.43063 11.7017 5.73514 11.5504 6.00542L9.60624 9.48179C8.65977 10.9845 8.15713 12.7241 8.15624 14.5V25.7774C8.15174 26.1819 8.28455 26.5761 8.53299 26.8954C8.78143 27.2147 9.13082 27.4404 9.52407 27.5355C12.7987 28.2798 16.2001 28.2798 19.4759 27.5355C19.8692 27.4404 20.2185 27.2147 20.467 26.8954C20.7154 26.5761 20.8482 26.1819 20.8437 25.7774V14.5C20.8437 12.7238 20.3411 10.9838 19.3937 9.48179L17.4495 6.00542Z"
-                    stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </g>
-            <defs>
-                <clipPath id="clip0_1619_2">
-                    <rect width="29" height="29" fill="white" />
-                </clipPath>
-            </defs>
-        </svg>
-
+        <RouterLink to="/results">
+            <svg class="title-svg" width="29" height="29" viewBox="0 0 29 29" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_1619_2)">
+                    <path
+                        d="M11.7812 4.53125H17.2187M17.4495 6.00542C17.2983 5.73514 17.2188 5.43063 17.2187 5.12092V1.8125C17.2187 1.57215 17.1233 1.34164 16.9533 1.17168C16.7833 1.00173 16.5528 0.90625 16.3125 0.90625H12.6875C12.4471 0.90625 12.2166 1.00173 12.0467 1.17168C11.8767 1.34164 11.7812 1.57215 11.7812 1.8125V5.12092C11.7811 5.43063 11.7017 5.73514 11.5504 6.00542L9.60624 9.48179C8.65977 10.9845 8.15713 12.7241 8.15624 14.5V25.7774C8.15174 26.1819 8.28455 26.5761 8.53299 26.8954C8.78143 27.2147 9.13082 27.4404 9.52407 27.5355C12.7987 28.2798 16.2001 28.2798 19.4759 27.5355C19.8692 27.4404 20.2185 27.2147 20.467 26.8954C20.7154 26.5761 20.8482 26.1819 20.8437 25.7774V14.5C20.8437 12.7238 20.3411 10.9838 19.3937 9.48179L17.4495 6.00542Z"
+                        stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </g>
+                <defs>
+                    <clipPath id="clip0_1619_2">
+                        <rect width="29" height="29" fill="white" />
+                    </clipPath>
+                </defs>
+            </svg>
+        </RouterLink>
 
         <p class="subtitle">
             21 день — это цикл обновления кожи.
@@ -408,7 +408,7 @@ watch(selectedOptions, (newValue) => {
             </Button>
         </div>
 
-        <div class="course__complete" v-else>
+        <div class="course__complete">
             <p class="title">Вы молодец!</p>
             <p>Вы прошли этот 21-дневний курс, это очень круто!</p>
             <p>Теперь вы, при желании, можете оценить данный курс и рассказать нам о своих результатах</p>
@@ -449,6 +449,7 @@ watch(selectedOptions, (newValue) => {
         position: absolute;
         right: 0;
         top: 22px;
+        cursor: pointer;
     }
 }
 

@@ -45,8 +45,14 @@
                         <Button class="white" btnTitle="Купить на Ozon" />
                     </a>
 
-                    <RouterLink to="/course" @click="createCourse()" :style="{ backgroundColor: getProductBackgroundColor }">
-                        <Button btnTitle="Я уже купил → активировать уход" />
+                    <RouterLink to="/course" v-if="!course_id" @click="createCourse()">
+                        <Button btnTitle="Я уже купил → активировать уход"
+                            :style="{ backgroundColor: getProductBackgroundColor }" />
+                    </RouterLink>
+
+                    <RouterLink to="/course" v-else>
+                        <Button btnTitle="Перейти к курсу"
+                            :style="{ backgroundColor: getProductBackgroundColor }" />
                     </RouterLink>
                 </div>
             </div>
@@ -69,6 +75,22 @@ const userStore = useUserStore()
 const loading = ref(true)
 const result = ref(null)
 
+loading.value = false;
+
+let course_id = userStore.course;
+
+
+// result.value = {
+//     "product": {
+//         "id": 1,
+//         "name": "Флюид Интенсивное увлажнение",
+//         "description": "lorem",
+//         "description_2": "lorem",
+//         "marketplace_wb_url": "das",
+//         "marketplace_ozon_url": "das",
+//     }
+// }
+
 const apiUrl = import.meta.env.VITE_API_URL
 
 const tasksArray = computed(() => {
@@ -84,10 +106,6 @@ const effectArray = computed(() => {
 onMounted(() => {
     result.value = userStore.getDiagnosticResult()
     loading.value = false
-
-    if (!result.value) {
-        router.push('/question')
-    }
 })
 
 const createCourse = async () => {
@@ -116,10 +134,8 @@ const createCourse = async () => {
         const resultData = await response.json()
         console.log('Курс создан:', resultData)
 
-        // ✅ Используем setCourse вместо прямого присвоения
         userStore.setCourse(resultData.data.CourseID)
 
-        // Переходим на страницу курса
         router.push('/course')
 
     } catch (error) {
@@ -143,6 +159,8 @@ const getProductBackgroundColor = computed(() => {
     return '#9CBF6E'
 })
 </script>
+
+
 <style lang="scss" scoped>
 .effect {
     margin-top: 30px;
@@ -197,7 +215,7 @@ const getProductBackgroundColor = computed(() => {
     font-size: 36px;
     font-weight: 700;
     font-family: var(--font-amazing);
-    margin-block: 0 6px;
+    margin-block: 30px 6px;
 }
 
 .results {

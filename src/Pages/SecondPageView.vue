@@ -44,19 +44,7 @@ import { RouterLink } from 'vue-router';
         line-height: 95%;
         margin-bottom: 10px;
         position: relative;
-
-        &::before {
-            content: '';
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background-color: var(--color-black);
-            border-radius: 50px;
-            left: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
+        
         span{
             font-weight: 700;
         }

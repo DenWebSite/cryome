@@ -87,23 +87,6 @@ const fetchQuestions = async () => {
         }
 
         currentIndex.value = 0
-
-        // Находим последний отвеченный вопрос
-        // const lastAnsweredIndex = questions.value.findIndex(q => {
-        //     const answer = answers.value[q.id]
-        //     if (q.is_multiple) {
-        //         return !answer || answer.length === 0
-        //     } else {
-        //         return !answer
-        //     }
-        // })
-
-        // if (lastAnsweredIndex !== -1) {
-        //     currentIndex.value = lastAnsweredIndex
-        // } else if (Object.keys(answers.value).length === questions.value.length) {
-        //     currentIndex.value = questions.value.length - 1
-        // }
-
     } catch (err) {
         error.value = err.message
         console.error('Error fetching questions:', err)
@@ -150,8 +133,8 @@ const submitResults = async () => {
             // Для одиночных ответов (радиокнопки)
             else if (!question.is_multiple && answerValue) {
                 formattedAnswers.push({
-                    questionID: parseInt(questionId), // Явно преобразуем в число
-                    answerID: parseInt(answerValue)   // Явно преобразуем в число
+                    questionID: parseInt(questionId),
+                    answerID: parseInt(answerValue)  
                 })
             }
         }
