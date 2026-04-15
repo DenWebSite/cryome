@@ -365,7 +365,7 @@ watch(selectedOptions, (newValue) => {
 
             <div class="descr__inner" v-if="selectedDay">
                 <h2 class="descr__title">
-                    <span>{{ selectedDay.day_number }}</span> день. {{ selectedDay.title }}
+                    <span>{{ selectedDay.day_number }}</span> день. <br> {{ selectedDay.title }}
                 </h2>
                 <p class="descr__subtitle">{{ selectedDay.description }} </p>
             </div>
@@ -504,10 +504,11 @@ watch(selectedOptions, (newValue) => {
 
     &__title {
         font-family: var(--font-amazing);
-        font-size: 36px;
+        font-size: 32px;
         font-weight: 700;
         margin-top: 30px;
         margin-bottom: 10px;
+        line-height: 110%;
 
         span {
             font-family: var(--font-inter);
