@@ -48,15 +48,14 @@ onMounted(async () => {
     }
 
     &__title {
-        font-weight: 800;
+        font-weight: 700;
         font-size: 36px;
         align-items: center;
         margin-block: 0 14px;
         line-height: 100%;
 
         &-number {
-            font-family: var(--font-inter);
-            margin-right: 10px;
+            margin-right: 8px;
         }
 
         &-span {

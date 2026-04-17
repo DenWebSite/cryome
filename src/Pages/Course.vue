@@ -223,12 +223,12 @@ const setDayComplete = async (day) => {
 
             // Очищаем чекбоксы
             selectedOptions.value = [];
-            alert.value.show(`${selectedDay.value.description}`)
-            console.log("selectedDay.value.description: ", selectedDay.value.description)
-            console.log('День успешно завершен, следующий день:', selectedDay.value?.day_number);
-        } else if ( response.status == 423 ){
+            const prevDayNumber = selectedDay.day_number - 1
+            const prevDay = days.value.find(d => d.day_number === prevDayNumber)
+            alert.value.show(prevDay.description || "Ты молодец!")
+        } else if (response.status == 423) {
             alert.value.show('Вы сможете завершить этот день позже')
-        } else{
+        } else {
             alert.value.show('Ошибка: ' + (result.message || 'Не удалось завершить день'))
         }
 
@@ -321,7 +321,7 @@ watch(selectedOptions, (newValue) => {
 
         <div class="days">
             <div v-for="day in days" class="day" @click="setSelectedDay(day)"
-                :style="!day.completed ? { border: '1px solid #000' } : { border: '1px solid transparent' }">
+                :style="!day.completed || day.id !== 1 ? { border: '1px solid #000' } : { border: '1px solid #FFF' }">
                 <svg v-if="day.id === 1 || day.completed" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <g opacity="0.3">
@@ -412,6 +412,22 @@ watch(selectedOptions, (newValue) => {
 
 }
 
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    75% {
+        transform: translateY(3px);
+    }
+}
+
 .title {
     font-size: 36px;
     font-weight: 700;
@@ -424,6 +440,10 @@ watch(selectedOptions, (newValue) => {
         right: 0;
         top: 22px;
         cursor: pointer;
+
+        &:hover {
+            animation: bounce 0.5s ease;
+        }
     }
 }
 
