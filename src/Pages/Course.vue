@@ -16,6 +16,7 @@ const progressBar = ref(0);
 const selectedOptions = ref([])
 const isFormValid = ref(false);
 const selectedDay = ref();
+const isAnimated = ref(false)
 
 const apiUrl = import.meta.env.VITE_API_URL
 
@@ -58,6 +59,10 @@ onMounted(async () => {
         console.log('Курс не найден, перенаправляем на результаты')
         // router.push('/results')
     }
+
+    setTimeout(() => {
+        isAnimated.value = true
+    }, 200)
 })
 
 onUnmounted(() => {
@@ -223,9 +228,11 @@ const setDayComplete = async (day) => {
 
             // Очищаем чекбоксы
             selectedOptions.value = [];
-            const prevDayNumber = selectedDay.day_number - 1
+
+            const prevDayNumber = selectedDay.value.day_number - 1
             const prevDay = days.value.find(d => d.day_number === prevDayNumber)
-            alert.value.show(prevDay.description || "Ты молодец!")
+            alert.value.show(prevDay?.description || "Ты молодец!")
+
         } else if (response.status == 423) {
             alert.value.show('Вы сможете завершить этот день позже')
         } else {
@@ -299,8 +306,8 @@ watch(selectedOptions, (newValue) => {
         </h1>
 
         <RouterLink to="/results">
-            <svg class="title-svg" width="29" height="29" viewBox="0 0 29 29" fill="none"
-                xmlns="http://www.w3.org/2000/svg">
+            <svg class="title-svg" :class="{ 'animate-bounce': isAnimated }" width="29" height="29" viewBox="0 0 29 29"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_1619_2)">
                     <path
                         d="M11.7812 4.53125H17.2187M17.4495 6.00542C17.2983 5.73514 17.2188 5.43063 17.2187 5.12092V1.8125C17.2187 1.57215 17.1233 1.34164 16.9533 1.17168C16.7833 1.00173 16.5528 0.90625 16.3125 0.90625H12.6875C12.4471 0.90625 12.2166 1.00173 12.0467 1.17168C11.8767 1.34164 11.7812 1.57215 11.7812 1.8125V5.12092C11.7811 5.43063 11.7017 5.73514 11.5504 6.00542L9.60624 9.48179C8.65977 10.9845 8.15713 12.7241 8.15624 14.5V25.7774C8.15174 26.1819 8.28455 26.5761 8.53299 26.8954C8.78143 27.2147 9.13082 27.4404 9.52407 27.5355C12.7987 28.2798 16.2001 28.2798 19.4759 27.5355C19.8692 27.4404 20.2185 27.2147 20.467 26.8954C20.7154 26.5761 20.8482 26.1819 20.8437 25.7774V14.5C20.8437 12.7238 20.3411 10.9838 19.3937 9.48179L17.4495 6.00542Z"
@@ -412,22 +419,6 @@ watch(selectedOptions, (newValue) => {
 
 }
 
-@keyframes bounce {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-10px);
-    }
-
-    75% {
-        transform: translateY(3px);
-    }
-}
-
 .title {
     font-size: 36px;
     font-weight: 700;
@@ -440,10 +431,6 @@ watch(selectedOptions, (newValue) => {
         right: 0;
         top: 22px;
         cursor: pointer;
-
-        &:hover {
-            animation: bounce 0.5s ease;
-        }
     }
 }
 
@@ -581,4 +568,25 @@ watch(selectedOptions, (newValue) => {
         width: 100%;
     }
 }
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    75% {
+        transform: translateY(3px);
+    }
+}
+
+.animate-bounce {
+    animation: bounce 0.5s ease 2;
+}
+
 </style>
