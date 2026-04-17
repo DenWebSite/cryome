@@ -16,22 +16,8 @@ const progressBar = ref(0);
 const selectedOptions = ref([])
 const isFormValid = ref(false);
 const selectedDay = ref();
-const selectedDayIsCompleteSuc = ref(false);
 
 const apiUrl = import.meta.env.VITE_API_URL
-
-// ✅ Функция для восстановления курса из localStorage
-const restoreCourseFromStorage = () => {
-    if (!userStore.course) {
-        const savedCourse = localStorage.getItem('user_course')
-        if (savedCourse) {
-            console.log('Курс восстановлен из localStorage:', savedCourse)
-            userStore.course = savedCourse
-            return true
-        }
-    }
-    return !!userStore.course
-}
 
 // ✅ Функция загрузки всех данных
 const loadCourseData = async () => {
@@ -53,17 +39,6 @@ const loadCourseData = async () => {
 }
 
 onMounted(async () => {
-    // Настройка Telegram
-    if (window.Telegram?.WebApp) {
-        const tg = window.Telegram.WebApp
-        if (tg.BackButton) {
-            tg.BackButton.show()
-            tg.BackButton.onClick(() => {
-                router.back()
-            })
-        }
-    }
-
     // ✅ Курс уже должен восстановиться из localStorage при создании store
     // Но на всякий случай проверяем
     if (!userStore.course) {

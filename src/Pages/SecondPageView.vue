@@ -5,7 +5,8 @@ import { onMounted, ref } from 'vue';
 
 const isPageReady = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
+    await document.fonts.ready
 
     setTimeout(() => {
         isPageReady.value = true;
@@ -15,16 +16,25 @@ onMounted(() => {
 
 <template>
     <div class="container" v-show="isPageReady">
-        <h1 class="hero__title"><span>21</span> день, который меняет кожу</h1>
-        <p class="hero__subtitle">Мы не просто подбираем средство — мы сопровождаем тебя до <span>результата. </span>
-        </p>
-        <p class="hero__subtitle">Каждый флюид — <span>это система</span>: увлажнение, восстановление или сияние.</p>
+        <div v-if="!isPageReady" class="loading">
+            Загрузка...
+        </div>
 
-        <img class="hero__image" src="/redhead-girl.jpg" alt="image" width="430" height="573">
+        <div v-else>
+            <h1 class="hero__title"><span>21</span> день, который меняет кожу</h1>
+            <p class="hero__subtitle">Мы не просто подбираем средство — мы сопровождаем тебя до <span>результата.
+                </span>
+            </p>
+            <p class="hero__subtitle">Каждый флюид — <span>это система</span>: увлажнение, восстановление или сияние.
+            </p>
 
-        <RouterLink to="/question">
-            <Button btnTitle="Пройти диагностику"></Button>
-        </RouterLink>
+            <img class="hero__image" src="/redhead-girl.jpg" alt="image" width="430" height="573">
+
+            <RouterLink to="/question">
+                <Button btnTitle="Пройти диагностику"></Button>
+            </RouterLink>
+
+        </div>
     </div>
 </template>
 

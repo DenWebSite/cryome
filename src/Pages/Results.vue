@@ -206,12 +206,17 @@ const getProductBackgroundColor = computed(() => {
         position: absolute;
         bottom: 20px;
     }
+
+    img{
+        width: 210px;
+        height: 270px;
+    }
 }
 
 @media (max-width: 420px) {
 
     .effect {
-        display: flex;
+        display: flex; 
         flex-direction: column;
 
         &__inner {
