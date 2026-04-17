@@ -62,6 +62,6 @@ defineExpose({ show })
 }
 
 .btn-ok:hover {
-  background: #45a049;
+  background: #858585;
 }
 </style>

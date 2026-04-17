@@ -10,9 +10,19 @@ const userStore = useUserStore()
 
 const questions = ref([])
 const loading = ref(true)
+const isPageReady = ref(false)
 const error = ref(null)
 const currentIndex = ref(0)
 const answers = ref({})
+
+// Загружаем вопросы при монтировании
+onMounted(() => {
+    fetchQuestions();
+
+    setTimeout(() => {
+        isPageReady.value = true;
+    }, 500)
+})
 
 // Выбранный ответ для одиночного выбора (radio)
 const selectedAnswer = computed({
@@ -174,16 +184,11 @@ const submitResults = async () => {
         throw new Error(`Server error: ${response.status}`)
     }
 }
-
-// Загружаем вопросы при монтировании
-onMounted(() => {
-    fetchQuestions()
-})
 </script>
 
 <template>
     <CustomAlert ref="alert" />
-    <div class="question-container">
+    <div v-show="isPageReady" class="question-container">
         <!-- Загрузка -->
         <div v-if="loading" class="loading">
             Загрузка вопросов...
@@ -374,8 +379,11 @@ onMounted(() => {
 .navigation {
     display: flex;
     flex-direction: column;
-    gap: 15px;
     position: relative;
     bottom: -30px;
+
+    button {
+        margin-bottom: 20px;
+    }
 }
 </style>

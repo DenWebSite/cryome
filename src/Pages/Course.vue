@@ -16,6 +16,7 @@ const progressBar = ref(0);
 const selectedOptions = ref([])
 const isFormValid = ref(false);
 const selectedDay = ref();
+const selectedDayIsCompleteSuc = ref(false);
 
 const apiUrl = import.meta.env.VITE_API_URL
 
@@ -91,6 +92,7 @@ onUnmounted(() => {
 })
 
 const getCourseDays = async () => {
+
     const telegram_id = userStore.user?.id || userStore.userId?.value
     let course_id = userStore.course;
 
@@ -217,7 +219,7 @@ const setDayComplete = async (day) => {
                 'X-Telegram-Init-Data': window.Telegram.WebApp.initData
             },
             body: JSON.stringify({
-                telegram_id: userStore.user?.id || userStore.userId?.value,
+                telegram_id: userStore.user?.id || userStore.userId(),
                 day_number: day,
                 course_id: parseInt(course_id),
             })
@@ -246,9 +248,12 @@ const setDayComplete = async (day) => {
 
             // Очищаем чекбоксы
             selectedOptions.value = [];
-
+            alert.value.show(`${selectedDay.value.description}`)
+            console.log("selectedDay.value.description: ", selectedDay.value.description)
             console.log('День успешно завершен, следующий день:', selectedDay.value?.day_number);
-        } else {
+        } else if ( response.status == 423 ){
+            alert.value.show('Вы сможете завершить этот день позже')
+        } else{
             alert.value.show('Ошибка: ' + (result.message || 'Не удалось завершить день'))
         }
 
@@ -365,40 +370,34 @@ watch(selectedOptions, (newValue) => {
         </div>
 
         <div v-if="progressBar !== 100" class="descr">
-
             <div class="descr__inner" v-if="selectedDay">
                 <h2 class="descr__title">
                     <span>{{ selectedDay.day_number }}</span> день. <br> {{ selectedDay.title }}
                 </h2>
-                <p class="descr__subtitle">{{ selectedDay.description }} </p>
+
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" value="option1" v-model="selectedOptions" />
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-text">Очистить лицо</span>
+                    </label>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" value="option2" v-model="selectedOptions" />
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-text">Сделать крио-уход с флюидом (утром и вечером)</span>
+                    </label>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" value="option3" v-model="selectedOptions" />
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-text">Зафиксировать результат кремом</span>
+                    </label>
+                </div>
             </div>
 
             <div class="descr__inner" v-else>
                 <h2 class="descr__title">Выберите день курса</h2>
-            </div>
-
-            <div v-if="selectedDay && !selectedDay.completed" class="checkbox-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" value="option1" v-model="selectedOptions" />
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">Очистить лицо</span>
-                </label>
-
-                <label class="checkbox-label">
-                    <input type="checkbox" value="option2" v-model="selectedOptions" />
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">Сделать крио-уход с флюидом (утром и вечером)</span>
-                </label>
-
-                <label class="checkbox-label">
-                    <input type="checkbox" value="option3" v-model="selectedOptions" />
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">Зафиксировать результат кремом</span>
-                </label>
-            </div>
-
-            <div v-else-if="selectedDay && selectedDay.completed">
-                <h2 class="title">Вы молодец! Позже будут доступны последующие дни</h2>
             </div>
 
             <Button class="button" btnTitle="Отправить" @click="setDayComplete(selectedDay.day_number)"
@@ -406,9 +405,6 @@ watch(selectedOptions, (newValue) => {
             </Button>
 
             <img class="descr__image" src="/day.jpg" alt="">
-
-            <Button class="button" btnTitle="Ждем тебя завтра!">
-            </Button>
         </div>
 
         <div class="course__complete" v-else>

@@ -217,6 +217,7 @@ const getProductBackgroundColor = computed(() => {
         &__inner {
             width: 100%;
             text-align: center;
+            min-height: 180px;
         }
 
         &__text {
@@ -268,11 +269,12 @@ const getProductBackgroundColor = computed(() => {
         }
 
         &-item {
+            margin: 0 auto;
             display: grid;
             grid-template-columns: 30% 70%;
             align-items: center;
             justify-content: center;
-            justify-items: center;
+            justify-items: start;
             gap: 14px;
             line-height: 100%;
             max-width: 340px;
