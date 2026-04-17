@@ -23,7 +23,6 @@ const apiUrl = import.meta.env.VITE_API_URL
 // ✅ Функция загрузки всех данных
 const loadCourseData = async () => {
     if (!userStore.course) {
-        console.log('Нет course_id, данные не загружены')
         return false
     }
 
@@ -50,13 +49,11 @@ onMounted(async () => {
     }
 
     if (userStore.course) {
-        console.log('Курс найден, ID:', userStore.course)
         await Promise.all([
             getCourseDays(),
             getCourseProgress()
         ])
     } else {
-        console.log('Курс не найден, перенаправляем на результаты')
         // router.push('/results')
     }
 
@@ -88,12 +85,9 @@ const getCourseDays = async () => {
         return null;
     }
 
-    console.log('getCourseDays - course_id:', course_id);
 
     try {
         const url = `${apiUrl}/api/course/calendar?telegram_id=${telegram_id}&course_id=${course_id}`;
-        console.log('URL:', url);
-
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -110,7 +104,6 @@ const getCourseDays = async () => {
 
         const data = await response.json();
         days.value = data.data || data;
-        console.log('Дни загружены:', days.value);
 
         if (days.value.length > 0) {
             const firstIncompleteDay = days.value.find(day => !day.completed)
@@ -152,7 +145,6 @@ const getCourseProgress = async () => {
 
         const data = await response.json();
         progressBar.value = data.data || data;
-        console.log('Прогресс:', progressBar.value);
         return progressBar.value;
 
     } catch (error) {
@@ -170,17 +162,9 @@ const setDayComplete = async (day) => {
         return;
     }
 
-    // ✅ ЛОГИРУЕМ для отладки
-    console.log('=== setDayComplete ===');
-    console.log('day_number:', day);
-    console.log('userStore.course:', userStore.course);
-    console.log('localStorage user_course:', localStorage.getItem('user_course'));
-
-    // ✅ Берем course_id из store или localStorage
     let course_id = userStore.course;
     if (!course_id) {
         course_id = localStorage.getItem('user_course');
-        console.log('course_id восстановлен из localStorage:', course_id);
         if (course_id) {
             userStore.setCourse(course_id);
         }
@@ -206,10 +190,8 @@ const setDayComplete = async (day) => {
         })
 
         const result = await response.json()
-        console.log('Ответ сервера:', result);
 
         if (response.ok) {
-            // ✅ Обновляем локальный выбранный день до перезагрузки
             const currentCompletedDay = day;
 
             // Перезагружаем данные
@@ -217,7 +199,6 @@ const setDayComplete = async (day) => {
             await getCourseProgress();
             await checkIsCourseComplete();
 
-            // ✅ Находим следующий незавершенный день
             const nextIncompleteDay = days.value.find(d => !d.completed);
             if (nextIncompleteDay) {
                 selectedDay.value = nextIncompleteDay;
@@ -249,8 +230,6 @@ const checkIsCourseComplete = async () => {
     const telegram_id = userStore.user?.id;
     const course_id = userStore.course;
 
-    console.log('checkIsCourseComplete - course_id:', course_id);
-
     if (!course_id) {
         return null;
     }
@@ -273,7 +252,6 @@ const checkIsCourseComplete = async () => {
         }
 
         const data = await response.json();
-        console.log('Курс завершён?:', data);
 
         const isComplete = data.data === true || data.is_complete === true || data === true;
 
@@ -287,7 +265,6 @@ const checkIsCourseComplete = async () => {
 
 watch(() => userStore.course, async (newCourse, oldCourse) => {
     if (newCourse && newCourse !== oldCourse) {
-        console.log('Курс изменился, загружаем данные...')
         await getCourseDays()
         await getCourseProgress()
     }

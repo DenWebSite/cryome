@@ -80,7 +80,6 @@ const submitReview = async () => {
 
         if (response.ok) {
             isCongratulationsVisible.value = true;
-            console.log(isCongratulationsVisible)
             rating.value = 0
             reviewText.value = ''
             mediaFiles.value = []

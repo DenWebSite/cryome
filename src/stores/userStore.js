@@ -16,19 +16,16 @@ export const useUserStore = defineStore('user', () => {
   const savedCourse = localStorage.getItem('user_course')
   if (savedCourse) {
     course.value = savedCourse
-    console.log('Course restored from localStorage:', savedCourse)
   }
 
   const savedDiagnosticResult = localStorage.getItem('diagnosticResult')
   if (savedDiagnosticResult) {
     diagnosticResult.value = JSON.parse(savedDiagnosticResult)
-    console.log('Diagnostic result restored from localStorage')
   }
 
   const savedTestAnswers = localStorage.getItem('testAnswers')
   if (savedTestAnswers) {
     testAnswers.value = JSON.parse(savedTestAnswers)
-    console.log('Test answers restored from localStorage')
   }
 
   const initTelegramUser = () => {
@@ -39,7 +36,6 @@ export const useUserStore = defineStore('user', () => {
 
       if (tg.initDataUnsafe.user) {
         user.value = tg.initDataUnsafe.user
-        console.log('User data:', user.value)
       }
 
       tg.ready()
@@ -94,7 +90,6 @@ export const useUserStore = defineStore('user', () => {
     course.value = courseId
     if (courseId) {
       localStorage.setItem('user_course', courseId)
-      console.log('Course saved to localStorage:', courseId)
     } else {
       localStorage.removeItem('user_course')
     }

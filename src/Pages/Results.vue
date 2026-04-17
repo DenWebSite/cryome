@@ -136,8 +136,6 @@ const createCourse = async () => {
         }
 
         const resultData = await response.json()
-        console.log('Курс создан:', resultData)
-
         userStore.setCourse(resultData.data.CourseID)
 
         router.push('/course')
