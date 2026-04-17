@@ -1,11 +1,20 @@
 <script setup>
 import Button from '@/components/Button.vue';
 import { RouterLink } from 'vue-router';
+import { onMounted, ref } from 'vue';
 
+const isPageReady = ref(false)
+
+onMounted(() => {
+
+    setTimeout(() => {
+        isPageReady.value = true;
+    }, 500)
+})
 </script>
 
 <template>
-    <div class="container">
+    <div class="container" v-show="isPageReady">
         <h1 class="hero__title"><span>21</span> день, который меняет кожу</h1>
         <p class="hero__subtitle">Мы не просто подбираем средство — мы сопровождаем тебя до <span>результата. </span>
         </p>
@@ -44,8 +53,8 @@ import { RouterLink } from 'vue-router';
         line-height: 95%;
         margin-bottom: 10px;
         position: relative;
-        
-        span{
+
+        span {
             font-weight: 700;
         }
     }

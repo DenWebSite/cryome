@@ -217,7 +217,7 @@ const getProductBackgroundColor = computed(() => {
         &__inner {
             width: 100%;
             text-align: center;
-            min-height: 180px;
+            min-height: 140px;
         }
 
         &__text {
