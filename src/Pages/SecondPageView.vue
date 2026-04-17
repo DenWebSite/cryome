@@ -21,7 +21,10 @@ onMounted(async () => {
         </div>
 
         <div v-else>
-            <h1 class="hero__title"><span>21</span> день, который меняет кожу</h1>
+            <h1 class="hero__title">
+                <span class="hero__title-number">21</span>
+                <span class="hero__title-span">день, который меняет кожу</span>
+            </h1>
             <p class="hero__subtitle">Мы не просто подбираем средство — мы сопровождаем тебя до <span>результата.
                 </span>
             </p>
@@ -45,16 +48,20 @@ onMounted(async () => {
     }
 
     &__title {
-        font-family: var(--font-amazing);
         font-weight: 800;
         font-size: 36px;
-        letter-spacing: -3%;
         align-items: center;
         margin-block: 0 14px;
         line-height: 100%;
 
-        span {
+        &-number {
             font-family: var(--font-inter);
+            margin-right: 10px;
+        }
+
+        &-span {
+            font-family: var(--font-amazing);
+            letter-spacing: -3%;
         }
     }
 
