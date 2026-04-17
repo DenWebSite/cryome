@@ -328,7 +328,7 @@ watch(selectedOptions, (newValue) => {
 
         <div class="days">
             <div v-for="day in days" class="day" @click="setSelectedDay(day)"
-                :style="!day.completed || day.id !== 1 ? { border: '1px solid #000' } : { border: '1px solid #FFF' }">
+                :style="!day.completed && day.id !== 1 ? { border: '1px solid #000' } : { border: '1px solid #FFF' }">
                 <svg v-if="day.id === 1 || day.completed" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <g opacity="0.3">
@@ -586,7 +586,7 @@ watch(selectedOptions, (newValue) => {
 }
 
 .animate-bounce {
-    animation: bounce 0.5s ease 2;
+    animation: bounce 0.8s ease 3;
 }
 
 </style>
