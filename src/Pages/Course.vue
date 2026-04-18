@@ -492,6 +492,7 @@ watch(selectedOptions, (newValue) => {
 .checkbox-label {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
     gap: 8px;
     cursor: pointer;
 
@@ -502,15 +503,18 @@ watch(selectedOptions, (newValue) => {
     .checkbox-custom {
         width: 20px;
         height: 20px;
-        border-radius: 4px; // У радио был круг, у чекбокса - квадрат
-        background-color: #e0e0e0; // Серый фон для обычных
+        min-width: 20px;
+        min-height: 20px;
+        border-radius: 4px;
+        background-color: #e0e0e0;
         transition: all 0.2s;
         position: relative;
+        flex-shrink: 0;
     }
 
     // Чёрный фон для выбранного
     input:checked+.checkbox-custom {
-        background-color: #000; // Чёрный
+        background-color: #000;
 
         // Галочка внутри
         &::after {
@@ -565,5 +569,4 @@ watch(selectedOptions, (newValue) => {
 .animate-bounce {
     animation: bounce 0.8s ease 3;
 }
-
 </style>
