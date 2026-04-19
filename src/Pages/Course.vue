@@ -520,8 +520,8 @@ watch(selectedOptions, (newValue) => {
         &::after {
             content: '';
             position: absolute;
-            left: 6px;
-            top: 2px;
+            left: 7px;
+            top: 3px;
             width: 6px;
             height: 10px;
             border: solid white;
